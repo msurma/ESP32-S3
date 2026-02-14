@@ -25,595 +25,81 @@ sensor:
     name: "Uptime"
     id: uptime_sec
     update_interval: 1s
-  - platform: internal_temperature
-    name: "ESP Temperature"
-    id: esp_temp
-    update_interval: 5s
 
 text_sensor:
   - platform: wifi_info
     ip_address:
       id: wifi_ip
-    mac_address:
-      id: wifi_mac
-  - platform: version
-    id: esphome_version
 
-# --- Globals for demo ---
-globals:
-  - id: demo_temp
-    type: float
-    initial_value: "21.5"
-  - id: demo_humidity
-    type: float
-    initial_value: "58.0"
-
-# --- Style definitions ---
+# --- LVGL UI ---
 lvgl:
-  style_definitions:
-    - id: style_card
-      bg_color: 0x1E1E2E
-      bg_opa: COVER
-      radius: 16
-      border_width: 1
-      border_color: 0x313244
-      pad_all: 16
-    - id: style_header
-      text_font: montserrat_14
-      text_color: 0xBAC2DE
-    - id: style_value
-      text_font: montserrat_36
-      text_color: 0xCDD6F4
-    - id: style_nav_btn
-      bg_color: 0x181825
-      bg_opa: COVER
-      radius: 12
-      border_width: 0
-      pad_all: 8
-
-  theme:
-    button:
-      bg_color: 0x89B4FA
-      text_color: 0x1E1E2E
-      radius: 12
-      border_width: 0
-      pressed:
-        bg_color: 0x74C7EC
-      checked:
-        bg_color: 0xA6E3A1
-    switch:
-      bg_color: 0x45475A
-      checked:
-        bg_color: 0xA6E3A1
-
-  # --- Navigation bar (always visible) ---
-  top_layer:
-    widgets:
-      - obj:
-          align: BOTTOM_MID
-          width: 800
-          height: 56
-          bg_color: 0x11111B
-          bg_opa: COVER
-          radius: 0
-          pad_all: 4
-          layout:
-            type: flex
-            flex_flow: ROW
-            flex_align_main: SPACE_EVENLY
-            flex_align_cross: CENTER
-          widgets:
-            - button:
-                id: nav_dashboard
-                styles: style_nav_btn
-                flex_grow: 1
-                height: 44
-                widgets:
-                  - label:
-                      align: CENTER
-                      text_font: montserrat_18
-                      text_color: 0x89B4FA
-                      text: "DASHBOARD"
-                on_click:
-                  then:
-                    - lvgl.page.show:
-                        id: page_dashboard
-                        animation: NONE
-            - button:
-                id: nav_controls
-                styles: style_nav_btn
-                flex_grow: 1
-                height: 44
-                widgets:
-                  - label:
-                      align: CENTER
-                      text_font: montserrat_18
-                      text_color: 0xA6E3A1
-                      text: "CONTROLS"
-                on_click:
-                  then:
-                    - lvgl.page.show:
-                        id: page_controls
-                        animation: NONE
-            - button:
-                id: nav_system
-                styles: style_nav_btn
-                flex_grow: 1
-                height: 44
-                widgets:
-                  - label:
-                      align: CENTER
-                      text_font: montserrat_18
-                      text_color: 0xF9E2AF
-                      text: "SYSTEM"
-                on_click:
-                  then:
-                    - lvgl.page.show:
-                        id: page_system
-                        animation: NONE
-
-  # --- Pages ---
   pages:
-    # =====================
-    #  PAGE 1: DASHBOARD
-    # =====================
-    - id: page_dashboard
-      bg_color: 0x11111B
-      bg_opa: COVER
-      pad_all: 16
-      pad_bottom: 72
-      layout:
-        type: grid
-        grid_columns: [fr(1), fr(1), fr(1)]
-        grid_rows: [40, fr(1)]
-        pad_row: 12
-        pad_column: 12
+    - id: main_page
       widgets:
-        # Title row
+        # Top bar
         - label:
-            grid_cell_row_pos: 0
-            grid_cell_column_pos: 0
-            grid_cell_column_span: 2
-            text: "Dashboard"
-            text_font: montserrat_28
-            text_color: 0xCDD6F4
+            align: TOP_MID
+            y: 10
+            text_font: montserrat_20
+            text: "Waveshare 7 — Test UI"
+        # WiFi info
         - label:
-            grid_cell_row_pos: 0
-            grid_cell_column_pos: 2
-            grid_cell_x_align: END
-            id: lbl_wifi_status
-            text_font: montserrat_14
-            text_color: 0xA6ADC8
+            align: TOP_LEFT
+            x: 10
+            y: 50
+            id: lbl_wifi
+            text_font: montserrat_16
             text: "WiFi: ---"
-
-        # Temperature card
-        - obj:
-            styles: style_card
-            grid_cell_row_pos: 1
-            grid_cell_column_pos: 0
-            grid_cell_x_align: STRETCH
-            grid_cell_y_align: STRETCH
-            widgets:
-              - label:
-                  styles: style_header
-                  align: TOP_LEFT
-                  text: "Temperature"
-              - arc:
-                  align: CENTER
-                  id: arc_temp
-                  width: 160
-                  height: 160
-                  min_value: -10
-                  max_value: 45
-                  value: 22
-                  adjustable: false
-                  start_angle: 135
-                  end_angle: 45
-                  arc_color: 0x313244
-                  arc_width: 12
-                  indicator:
-                    arc_color: 0xF38BA8
-                    arc_width: 12
-                    arc_rounded: true
-              - label:
-                  align: CENTER
-                  id: lbl_temp
-                  styles: style_value
-                  text: "21.5"
-              - label:
-                  align: CENTER
-                  y: 30
-                  text_font: montserrat_16
-                  text_color: 0x6C7086
-                  text: "C"
-
-        # Humidity card
-        - obj:
-            styles: style_card
-            grid_cell_row_pos: 1
-            grid_cell_column_pos: 1
-            grid_cell_x_align: STRETCH
-            grid_cell_y_align: STRETCH
-            widgets:
-              - label:
-                  styles: style_header
-                  align: TOP_LEFT
-                  text: "Humidity"
-              - arc:
-                  align: CENTER
-                  id: arc_humidity
-                  width: 160
-                  height: 160
-                  min_value: 0
-                  max_value: 100
-                  value: 58
-                  adjustable: false
-                  start_angle: 135
-                  end_angle: 45
-                  arc_color: 0x313244
-                  arc_width: 12
-                  indicator:
-                    arc_color: 0x89B4FA
-                    arc_width: 12
-                    arc_rounded: true
-              - label:
-                  align: CENTER
-                  id: lbl_humidity
-                  styles: style_value
-                  text: "58"
-              - label:
-                  align: CENTER
-                  y: 30
-                  text_font: montserrat_16
-                  text_color: 0x6C7086
-                  text: "%"
-
-        # ESP chip temperature card
-        - obj:
-            styles: style_card
-            grid_cell_row_pos: 1
-            grid_cell_column_pos: 2
-            grid_cell_x_align: STRETCH
-            grid_cell_y_align: STRETCH
-            widgets:
-              - label:
-                  styles: style_header
-                  align: TOP_LEFT
-                  text: "ESP32 Chip"
-              - arc:
-                  align: CENTER
-                  id: arc_chip
-                  width: 160
-                  height: 160
-                  min_value: 20
-                  max_value: 80
-                  value: 45
-                  adjustable: false
-                  start_angle: 135
-                  end_angle: 45
-                  arc_color: 0x313244
-                  arc_width: 12
-                  indicator:
-                    arc_color: 0xF9E2AF
-                    arc_width: 12
-                    arc_rounded: true
-              - label:
-                  align: CENTER
-                  id: lbl_chip_temp
-                  styles: style_value
-                  text: "---"
-              - label:
-                  align: CENTER
-                  y: 30
-                  text_font: montserrat_16
-                  text_color: 0x6C7086
-                  text: "C"
-
-    # =====================
-    #  PAGE 2: CONTROLS
-    # =====================
-    - id: page_controls
-      bg_color: 0x11111B
-      bg_opa: COVER
-      pad_all: 16
-      pad_bottom: 72
-      layout:
-        type: grid
-        grid_columns: [fr(1), fr(1)]
-        grid_rows: [40, fr(1), fr(1)]
-        pad_row: 12
-        pad_column: 12
-      widgets:
-        # Title
+        # Uptime
         - label:
-            grid_cell_row_pos: 0
-            grid_cell_column_pos: 0
-            grid_cell_column_span: 2
-            text: "Controls"
-            text_font: montserrat_28
-            text_color: 0xCDD6F4
-
-        # Brightness card
-        - obj:
-            styles: style_card
-            grid_cell_row_pos: 1
-            grid_cell_column_pos: 0
-            grid_cell_x_align: STRETCH
-            grid_cell_y_align: STRETCH
-            layout:
-              type: flex
-              flex_flow: COLUMN
-              flex_align_main: SPACE_EVENLY
-              flex_align_cross: CENTER
+            align: TOP_RIGHT
+            x: -10
+            y: 50
+            id: lbl_uptime
+            text_font: montserrat_16
+            text: "Uptime: 0s"
+        # Test button
+        - button:
+            align: CENTER
+            width: 200
+            height: 80
             widgets:
               - label:
-                  styles: style_header
-                  text: "Brightness"
-              - slider:
-                  id: slider_brightness
-                  width: 220
-                  min_value: 0
-                  max_value: 100
-                  value: 75
-                  animated: true
-                  on_value:
-                    then:
-                      - lvgl.label.update:
-                          id: lbl_brightness
-                          text:
-                            format: "%d%%"
-                            args: ['(int)x']
-              - label:
-                  id: lbl_brightness
-                  text_font: montserrat_28
-                  text_color: 0xCDD6F4
-                  text: "75%"
-
-        # Color buttons card
-        - obj:
-            styles: style_card
-            grid_cell_row_pos: 1
-            grid_cell_column_pos: 1
-            grid_cell_x_align: STRETCH
-            grid_cell_y_align: STRETCH
-            layout:
-              type: flex
-              flex_flow: COLUMN
-              flex_align_main: SPACE_EVENLY
-              flex_align_cross: CENTER
-            widgets:
-              - label:
-                  styles: style_header
-                  text: "Scene"
-              - obj:
-                  width: 240
-                  height: 80
-                  bg_opa: TRANSP
-                  border_width: 0
-                  pad_all: 0
-                  layout:
-                    type: flex
-                    flex_flow: ROW
-                    flex_align_main: SPACE_EVENLY
-                    flex_align_cross: CENTER
-                  widgets:
-                    - button:
-                        width: 70
-                        height: 70
-                        bg_color: 0xF38BA8
-                        radius: 35
-                        widgets:
-                          - label:
-                              align: CENTER
-                              text_font: montserrat_20
-                              text_color: 0x1E1E2E
-                              text: "R"
-                    - button:
-                        width: 70
-                        height: 70
-                        bg_color: 0xA6E3A1
-                        radius: 35
-                        widgets:
-                          - label:
-                              align: CENTER
-                              text_font: montserrat_20
-                              text_color: 0x1E1E2E
-                              text: "G"
-                    - button:
-                        width: 70
-                        height: 70
-                        bg_color: 0x89B4FA
-                        radius: 35
-                        widgets:
-                          - label:
-                              align: CENTER
-                              text_font: montserrat_20
-                              text_color: 0x1E1E2E
-                              text: "B"
-
-        # Toggles card
-        - obj:
-            styles: style_card
-            grid_cell_row_pos: 2
-            grid_cell_column_pos: 0
-            grid_cell_column_span: 2
-            grid_cell_x_align: STRETCH
-            grid_cell_y_align: STRETCH
-            layout:
-              type: flex
-              flex_flow: ROW
-              flex_align_main: SPACE_EVENLY
-              flex_align_cross: CENTER
-            widgets:
-              - obj:
-                  bg_opa: TRANSP
-                  border_width: 0
-                  width: SIZE_CONTENT
-                  height: SIZE_CONTENT
-                  layout:
-                    type: flex
-                    flex_flow: COLUMN
-                    flex_align_cross: CENTER
-                  widgets:
-                    - switch:
-                        id: sw_light1
-                    - label:
-                        text_font: montserrat_14
-                        text_color: 0xBAC2DE
-                        text: "Living Room"
-              - obj:
-                  bg_opa: TRANSP
-                  border_width: 0
-                  width: SIZE_CONTENT
-                  height: SIZE_CONTENT
-                  layout:
-                    type: flex
-                    flex_flow: COLUMN
-                    flex_align_cross: CENTER
-                  widgets:
-                    - switch:
-                        id: sw_light2
-                    - label:
-                        text_font: montserrat_14
-                        text_color: 0xBAC2DE
-                        text: "Bedroom"
-              - obj:
-                  bg_opa: TRANSP
-                  border_width: 0
-                  width: SIZE_CONTENT
-                  height: SIZE_CONTENT
-                  layout:
-                    type: flex
-                    flex_flow: COLUMN
-                    flex_align_cross: CENTER
-                  widgets:
-                    - switch:
-                        id: sw_light3
-                    - label:
-                        text_font: montserrat_14
-                        text_color: 0xBAC2DE
-                        text: "Kitchen"
-              - obj:
-                  bg_opa: TRANSP
-                  border_width: 0
-                  width: SIZE_CONTENT
-                  height: SIZE_CONTENT
-                  layout:
-                    type: flex
-                    flex_flow: COLUMN
-                    flex_align_cross: CENTER
-                  widgets:
-                    - switch:
-                        id: sw_fan
-                    - label:
-                        text_font: montserrat_14
-                        text_color: 0xBAC2DE
-                        text: "Fan"
-
-    # =====================
-    #  PAGE 3: SYSTEM
-    # =====================
-    - id: page_system
-      bg_color: 0x11111B
-      bg_opa: COVER
-      pad_all: 16
-      pad_bottom: 72
-      layout:
-        type: grid
-        grid_columns: [fr(2), fr(1)]
-        grid_rows: [40, fr(1)]
-        pad_row: 12
-        pad_column: 12
-      widgets:
-        # Title
+                  align: CENTER
+                  id: lbl_btn
+                  text_font: montserrat_20
+                  text: "TAP ME"
+            on_click:
+              then:
+                - lvgl.label.update:
+                    id: lbl_btn
+                    text: "TOUCH OK!"
+                - delay: 1s
+                - lvgl.label.update:
+                    id: lbl_btn
+                    text: "TAP ME"
+        # Slider
         - label:
-            grid_cell_row_pos: 0
-            grid_cell_column_pos: 0
-            grid_cell_column_span: 2
-            text: "System"
-            text_font: montserrat_28
-            text_color: 0xCDD6F4
-
-        # Info card
-        - obj:
-            styles: style_card
-            grid_cell_row_pos: 1
-            grid_cell_column_pos: 0
-            grid_cell_x_align: STRETCH
-            grid_cell_y_align: STRETCH
-            layout:
-              type: flex
-              flex_flow: COLUMN
-              flex_align_main: SPACE_EVENLY
-            widgets:
-              - label:
-                  text_font: montserrat_16
-                  text_color: 0x6C7086
-                  text: "DEVICE"
-              - label:
-                  text_font: montserrat_20
-                  text_color: 0xCDD6F4
-                  text: "Waveshare ESP32-S3-Touch-LCD-7"
-              - label:
-                  text_font: montserrat_16
-                  text_color: 0x6C7086
-                  text: "ESPHOME"
-              - label:
-                  id: lbl_version
-                  text_font: montserrat_20
-                  text_color: 0xCDD6F4
-                  text: "---"
-              - label:
-                  text_font: montserrat_16
-                  text_color: 0x6C7086
-                  text: "IP ADDRESS"
-              - label:
-                  id: lbl_ip
-                  text_font: montserrat_20
-                  text_color: 0xCDD6F4
-                  text: "---"
-              - label:
-                  text_font: montserrat_16
-                  text_color: 0x6C7086
-                  text: "MAC ADDRESS"
-              - label:
-                  id: lbl_mac
-                  text_font: montserrat_20
-                  text_color: 0xCDD6F4
-                  text: "---"
-              - label:
-                  text_font: montserrat_16
-                  text_color: 0x6C7086
-                  text: "UPTIME"
-              - label:
-                  id: lbl_uptime
-                  text_font: montserrat_20
-                  text_color: 0xCDD6F4
-                  text: "0s"
-
-        # QR code card
-        - obj:
-            styles: style_card
-            grid_cell_row_pos: 1
-            grid_cell_column_pos: 1
-            grid_cell_x_align: STRETCH
-            grid_cell_y_align: STRETCH
-            layout:
-              type: flex
-              flex_flow: COLUMN
-              flex_align_main: CENTER
-              flex_align_cross: CENTER
-            widgets:
-              - label:
-                  text_font: montserrat_14
-                  text_color: 0x6C7086
-                  text: "GitHub Repo"
-              - qrcode:
-                  id: qr_repo
-                  size: 160
-                  light_color: 0xCDD6F4
-                  dark_color: 0x1E1E2E
-                  text: "https://github.com/msurma/ESP32-S3"
+            align: CENTER
+            y: 80
+            id: lbl_slider_val
+            text_font: montserrat_16
+            text: "Slider: 50"
+        - slider:
+            align: CENTER
+            y: 120
+            width: 400
+            id: test_slider
+            min_value: 0
+            max_value: 100
+            value: 50
+            on_value:
+              then:
+                - lvgl.label.update:
+                    id: lbl_slider_val
+                    text:
+                      format: "Slider: %.0f"
+                      args: [x]
 
 # --- Sensor → Label updates ---
 interval:
@@ -622,55 +108,12 @@ interval:
       - lvgl.label.update:
           id: lbl_uptime
           text:
-            format: "%.0fs"
+            format: "Uptime: %.0fs"
             args: [id(uptime_sec).state]
-  - interval: 5s
+  - interval: 10s
     then:
       - lvgl.label.update:
-          id: lbl_wifi_status
+          id: lbl_wifi
           text:
-            format: "WiFi: %.0f dBm"
-            args: [id(wifi_rssi).state]
-      - lvgl.label.update:
-          id: lbl_chip_temp
-          text:
-            format: "%.1f"
-            args: [id(esp_temp).state]
-      - lvgl.arc.update:
-          id: arc_chip
-          value: !lambda "return (int)id(esp_temp).state;"
-      # Simulated temperature drift for demo
-      - globals.set:
-          id: demo_temp
-          value: !lambda "return 20.0 + 3.0 * sin(id(uptime_sec).state / 30.0);"
-      - lvgl.label.update:
-          id: lbl_temp
-          text:
-            format: "%.1f"
-            args: [id(demo_temp)]
-      - lvgl.arc.update:
-          id: arc_temp
-          value: !lambda "return (int)id(demo_temp);"
-      # Simulated humidity drift for demo
-      - globals.set:
-          id: demo_humidity
-          value: !lambda "return 55.0 + 10.0 * cos(id(uptime_sec).state / 45.0);"
-      - lvgl.label.update:
-          id: lbl_humidity
-          text:
-            format: "%.0f"
-            args: [id(demo_humidity)]
-      - lvgl.arc.update:
-          id: arc_humidity
-          value: !lambda "return (int)id(demo_humidity);"
-  - interval: 30s
-    then:
-      - lvgl.label.update:
-          id: lbl_ip
-          text: !lambda "return id(wifi_ip).state;"
-      - lvgl.label.update:
-          id: lbl_mac
-          text: !lambda "return id(wifi_mac).state;"
-      - lvgl.label.update:
-          id: lbl_version
-          text: !lambda "return id(esphome_version).state;"
+            format: "WiFi: %.0f dBm | %s"
+            args: ['id(wifi_rssi).state', 'id(wifi_ip).state.c_str()']
