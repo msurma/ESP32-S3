@@ -1,6 +1,3 @@
-packages:
-  waveshare: github://inytar/waveshare-esp32-s3-touch-lcd-7-esphome/waveshare-esp32-s3-touch-lcd-7.yaml@main
-
 esp32:
   flash_size: 16MB
 
