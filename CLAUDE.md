@@ -60,6 +60,20 @@ esphome config <config>.yaml       # validate YAML config
 - `waveshare-7.yaml` — device config (name, WiFi, API key) — includes the package, references `secrets.yaml`
 - `secrets.yaml` — gitignored, credentials only; see `secrets.yaml.example` for keys
 
+### Remote Package Loading
+
+The `github://` shorthand is unreliable. Use the extended `url` + `files` syntax on the homelab ESPHome dashboard:
+
+```yaml
+packages:
+  device:
+    url: https://github.com/msurma/ESP32-S3
+    files: [waveshare-7-package.yaml]
+    ref: main
+```
+
+Remote packages cannot use `!secret` — use `substitutions` with defaults instead.
+
 ### Key Display Pins (for ESPHome rpi_dpi_rgb platform)
 
 ```
