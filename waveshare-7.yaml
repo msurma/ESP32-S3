@@ -1,15 +1,9 @@
 packages:
-  waveshare: github://inytar/waveshare-esp32-s3-touch-lcd-7-esphome/waveshare-esp32-s3-touch-lcd-7.yaml@main
+  device: !include waveshare-7-package.yaml
 
 esphome:
   name: waveshare-7
   friendly_name: "Waveshare 7"
-
-esp32:
-  flash_size: 16MB
-
-psram:
-  speed: 80MHz
 
 wifi:
   ssid: !secret wifi_ssid

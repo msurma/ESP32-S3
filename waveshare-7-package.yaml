@@ -1,0 +1,111 @@
+packages:
+  waveshare: github://inytar/waveshare-esp32-s3-touch-lcd-7-esphome/waveshare-esp32-s3-touch-lcd-7.yaml@main
+
+esp32:
+  flash_size: 16MB
+
+psram:
+  speed: 80MHz
+
+# --- Sensors ---
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    id: wifi_rssi
+    update_interval: 10s
+  - platform: uptime
+    name: "Uptime"
+    id: uptime_sec
+    update_interval: 1s
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      id: wifi_ip
+
+# --- LVGL UI ---
+lvgl:
+  pages:
+    - id: main_page
+      widgets:
+        # Top bar
+        - label:
+            align: TOP_MID
+            y: 10
+            text_font: montserrat_20
+            text: "Waveshare 7 — Test UI"
+        # WiFi info
+        - label:
+            align: TOP_LEFT
+            x: 10
+            y: 50
+            id: lbl_wifi
+            text_font: montserrat_16
+            text: "WiFi: ---"
+        # Uptime
+        - label:
+            align: TOP_RIGHT
+            x: -10
+            y: 50
+            id: lbl_uptime
+            text_font: montserrat_16
+            text: "Uptime: 0s"
+        # Test button
+        - button:
+            align: CENTER
+            width: 200
+            height: 80
+            widgets:
+              - label:
+                  align: CENTER
+                  id: lbl_btn
+                  text_font: montserrat_20
+                  text: "TAP ME"
+            on_click:
+              then:
+                - lvgl.label.update:
+                    id: lbl_btn
+                    text: "TOUCH OK!"
+                - delay: 1s
+                - lvgl.label.update:
+                    id: lbl_btn
+                    text: "TAP ME"
+        # Slider
+        - label:
+            align: CENTER
+            y: 80
+            id: lbl_slider_val
+            text_font: montserrat_16
+            text: "Slider: 50"
+        - slider:
+            align: CENTER
+            y: 120
+            width: 400
+            id: test_slider
+            min_value: 0
+            max_value: 100
+            value: 50
+            on_value:
+              then:
+                - lvgl.label.update:
+                    id: lbl_slider_val
+                    text:
+                      format: "Slider: %.0f"
+                      args: [x]
+
+# --- Sensor → Label updates ---
+interval:
+  - interval: 1s
+    then:
+      - lvgl.label.update:
+          id: lbl_uptime
+          text:
+            format: "Uptime: %.0fs"
+            args: [id(uptime_sec).state]
+  - interval: 10s
+    then:
+      - lvgl.label.update:
+          id: lbl_wifi
+          text:
+            format: "WiFi: %.0f dBm | %s"
+            args: ['id(wifi_rssi).state', 'id(wifi_ip).state.c_str()']
