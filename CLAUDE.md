@@ -19,7 +19,8 @@ ESPHome-based firmware for the **Waveshare ESP32-S3-Touch-LCD-7** (model 27078) 
 
 ## Key Technical Constraints
 
-- PSRAM must run in octal mode (80–120 MHz) with specific ESP-IDF sdkconfig flags
+- PSRAM must run in octal mode at **80 MHz** (`psram: speed: 80MHz`) — 120 MHz from the base package causes bootloop on this board
+- The inytar base package defaults to `flash_size: 8MB` — this board has 16MB, override with `esp32: flash_size: 16MB`
 - GPIO19/20 are shared between CAN and native USB — mode selected via CH422G EXIO5
 - The RGB display consumes nearly all GPIO pins; available pins for expansion are limited to I2C, RS485 (GPIO15/16), and CAN (GPIO19/20)
 - WiFi signal is attenuated by the backlight shield — position the board with care
@@ -35,6 +36,14 @@ https://github.com/inytar/waveshare-esp32-s3-touch-lcd-7-esphome
 
 This package handles display init, touch, backlight, and antiburn. Requires ESPHome >= 2025.4.2.
 
+### Environment Setup
+
+```bash
+make install   # create .venv (Python 3.13) and install ESPHome — Python 3.14 is incompatible
+make sh        # enter venv shell (alias: make shell)
+make gen-key   # generate base64 API encryption key
+```
+
 ### Build & Flash
 
 ```bash
@@ -44,6 +53,12 @@ esphome upload <config>.yaml       # upload only (OTA or USB)
 esphome logs <config>.yaml         # serial/network log monitor
 esphome config <config>.yaml       # validate YAML config
 ```
+
+### Config Architecture
+
+- `waveshare-7-package.yaml` — reusable package (hardware overrides, UI, sensors) — no secrets, safe for public repos
+- `waveshare-7.yaml` — device config (name, WiFi, API key) — includes the package, references `secrets.yaml`
+- `secrets.yaml` — gitignored, credentials only; see `secrets.yaml.example` for keys
 
 ### Key Display Pins (for ESPHome rpi_dpi_rgb platform)
 
