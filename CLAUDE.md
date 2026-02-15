@@ -81,6 +81,10 @@ DE: GPIO5, HSYNC: GPIO46, VSYNC: GPIO3, PCLK: GPIO7
 R: GPIO1,2,42,41,40  G: GPIO39,0,45,48,47,21  B: GPIO14,38,18,17,10
 ```
 
+## Home Assistant Devices
+
+Full device list with entity IDs is in `DEVICES.md`. Use it to reference HA entities in ESPHome configs and LVGL UI.
+
 ## Integration Context
 
 - The owner runs **Home Assistant** with **Voice PE** on custom ESPHome firmware
