@@ -15,8 +15,53 @@ esp32:
 psram:
   speed: 80MHz
 
+# --- Time ---
+time:
+  - platform: homeassistant
+    id: ha_time
+
 # --- Sensors ---
 sensor:
 
 # --- LVGL UI ---
 lvgl:
+  pages:
+    - id: main_page
+      bg_color: 0x000000
+      scrollbar_mode: "OFF"
+      scrollable: false
+      widgets:
+        # Status bar
+        - obj:
+            width: 800
+            height: 32
+            border_width: 0
+            radius: 0
+            scrollbar_mode: "OFF"
+            scrollable: false
+            x: 0
+            y: 0
+            bg_color: 0x1A1A1A
+            bg_opa: COVER
+            pad_left: 8
+            pad_right: 8
+            widgets:
+              - label:
+                  id: lbl_clock
+                  align: LEFT_MID
+                  text_color: 0xFFFFFF
+                  text_font: montserrat_28
+                  text: "--:--"
+
+# --- Clock update ---
+interval:
+  - interval: 1s
+    then:
+      - lvgl.label.update:
+          id: lbl_clock
+          text: !lambda |-
+            auto now = id(ha_time).now();
+            if (!now.is_valid()) return std::string("--:--");
+            char buf[6];
+            snprintf(buf, sizeof(buf), "%02d:%02d", now.hour, now.minute);
+            return std::string(buf);
