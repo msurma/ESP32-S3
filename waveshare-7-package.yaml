@@ -181,15 +181,20 @@ lvgl:
       text_font: icon_font_14
       text_color: 0xFFFFFF
     button:
-      bg_color: 0x2A2A3E
+      bg_color: 0x333348
+      bg_grad_color: 0x1E1E30
+      bg_grad_dir: VER
+      bg_dither_mode: ERR_DIFF
       bg_opa: COVER
       border_width: 0
       radius: 12
       text_color: 0xFFFFFF
       pressed:
-        bg_color: 0x3A3A4E
+        bg_color: 0x404058
+        bg_grad_color: 0x282840
       checked:
-        bg_color: 0xE8A030
+        bg_color: 0xF0A830
+        bg_grad_color: 0xC07818
         text_color: 0x1A1A2E
     buttonmatrix:
       bg_opa: TRANSP
@@ -197,16 +202,21 @@ lvgl:
       text_color: 0xFFFFFF
       pad_all: 4
       items:
-        bg_color: 0x2A2A3E
+        bg_color: 0x333348
+        bg_grad_color: 0x1E1E30
+        bg_grad_dir: VER
+        bg_dither_mode: ERR_DIFF
         bg_opa: COVER
         border_width: 0
         radius: 8
         text_color: 0xFFFFFF
         text_font: icon_font_14
         pressed:
-          bg_color: 0x3A3A4E
+          bg_color: 0x404058
+          bg_grad_color: 0x282840
         checked:
-          bg_color: 0xE8A030
+          bg_color: 0xF0A830
+          bg_grad_color: 0xC07818
           text_color: 0x1A1A2E
     switch:
       bg_color: 0x404050
@@ -230,14 +240,20 @@ lvgl:
         border_width: 0
   style_definitions:
     - id: card
-      bg_color: 0x1C1C2E
+      bg_color: 0x2E2E48
+      bg_grad_color: 0x0C0C18
+      bg_grad_dir: VER
+      bg_dither_mode: ERR_DIFF
       bg_opa: COVER
       border_width: 0
       radius: 12
       pad_all: 12
       text_color: 0xFFFFFF
     - id: chip
-      bg_color: 0x2A2A3E
+      bg_color: 0x333348
+      bg_grad_color: 0x1E1E30
+      bg_grad_dir: VER
+      bg_dither_mode: ERR_DIFF
       bg_opa: COVER
       border_width: 0
       radius: 16
@@ -265,7 +281,10 @@ lvgl:
             scrollable: false
             x: 0
             y: 0
-            bg_color: 0x1A1A1A
+            bg_color: 0x222230
+            bg_grad_color: 0x0A0A10
+            bg_grad_dir: VER
+            bg_dither_mode: ERR_DIFF
             bg_opa: COVER
             pad_left: 8
             pad_right: 8
