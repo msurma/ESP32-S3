@@ -52,6 +52,12 @@ lvgl:
                   text_color: 0xFFFFFF
                   text_font: montserrat_28
                   text: "--:--"
+              - label:
+                  id: lbl_date
+                  align: RIGHT_MID
+                  text_color: 0xFFFFFF
+                  text_font: montserrat_14
+                  text: ""
 
 # --- Clock update ---
 interval:
@@ -64,4 +70,15 @@ interval:
             if (!now.is_valid()) return std::string("--:--");
             char buf[6];
             snprintf(buf, sizeof(buf), "%02d:%02d", now.hour, now.minute);
+            return std::string(buf);
+      - lvgl.label.update:
+          id: lbl_date
+          text: !lambda |-
+            auto now = id(ha_time).now();
+            if (!now.is_valid()) return std::string("");
+            const char *days[] = {"niedz.", "pon.", "wt.", "śr.", "czw.", "pt.", "sob."};
+            const char *months[] = {"stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+                                    "lipca", "sierpnia", "września", "października", "listopada", "grudnia"};
+            char buf[40];
+            snprintf(buf, sizeof(buf), "%s, %d %s %d r.", days[now.day_of_week - 1], now.day_of_month, months[now.month - 1], now.year);
             return std::string(buf);
