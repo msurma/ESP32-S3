@@ -88,6 +88,14 @@ R: GPIO1,2,42,41,40  G: GPIO39,0,45,48,47,21  B: GPIO14,38,18,17,10
 - Secondary goal: voice satellite integration (pending audio hardware)
 - External 5W Waveshare speakers are available for audio output
 
+## Iterative Workflow
+
+1. User requests a change
+2. Analyze scope, plan approach, ask clarifying questions if needed
+3. Implement the change
+4. Compile and upload: `esphome compile waveshare-7.yaml && esphome upload --device 192.168.1.228 waveshare-7.yaml`
+5. User tests on device — if OK, commit and loop back to step 1; if not, fix and repeat from step 3
+
 ## Commit Message Rules
 
 - Always use a **single line** — never multi-line commit messages
