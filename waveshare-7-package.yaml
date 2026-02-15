@@ -91,6 +91,19 @@ text_sensor:
   - platform: homeassistant
     id: salon_preset
     entity_id: select.salon_adaptive_preset
+    on_value:
+      then:
+        - lambda: |-
+            int idx = -1;
+            auto v = id(salon_preset).state;
+            if (v == "Trochę ciemniej") idx = 1;
+            else if (v == "Normalne") idx = 2;
+            else if (v == "Trochę jaśniej") idx = 3;
+            else if (v == "100%") idx = 4;
+            if (idx >= 0) {
+              lv_dropdown_set_selected(id(dd_preset)->obj, idx);
+              lv_event_send(id(dd_preset)->obj, LV_EVENT_VALUE_CHANGED, nullptr);
+            }
 
 # --- Fonts ---
 font:
@@ -658,68 +671,68 @@ lvgl:
             scrollable: false
             widgets:
               # Adaptive lighting presets
-              - buttonmatrix:
-                  id: preset_buttons
-                  width: 784
-                  height: 48
-                  pad_all: 0
-                  one_checked: true
-                  rows:
-                    - buttons:
-                        - id: btn_preset_off
-                          text: "Off"
-                          control:
-                            checkable: true
-                          on_press:
-                            then:
-                              - homeassistant.service:
-                                  service: light.turn_off
-                                  data:
-                                    entity_id: "light.hue_white_light_1, light.hue_white_light_1_3, light.hue_white_light_1_4"
-                        - id: btn_preset_ciemniej
-                          text: "Ciemniej"
-                          control:
-                            checkable: true
-                          on_press:
-                            then:
-                              - homeassistant.service:
-                                  service: select.select_option
-                                  data:
-                                    entity_id: select.salon_adaptive_preset
-                                    option: "Trochę ciemniej"
-                        - id: btn_preset_normalnie
-                          text: "Normalnie"
-                          control:
-                            checkable: true
-                          on_press:
-                            then:
-                              - homeassistant.service:
-                                  service: select.select_option
-                                  data:
-                                    entity_id: select.salon_adaptive_preset
-                                    option: "Normalne"
-                        - id: btn_preset_jasniej
-                          text: "Jaśniej"
-                          control:
-                            checkable: true
-                          on_press:
-                            then:
-                              - homeassistant.service:
-                                  service: select.select_option
-                                  data:
-                                    entity_id: select.salon_adaptive_preset
-                                    option: "Trochę jaśniej"
-                        - id: btn_preset_100
-                          text: "100%"
-                          control:
-                            checkable: true
-                          on_press:
-                            then:
-                              - homeassistant.service:
-                                  service: select.select_option
-                                  data:
-                                    entity_id: select.salon_adaptive_preset
-                                    option: "100%"
+              - label:
+                  text: "Oświetlenie adaptacyjne"
+                  text_font: font_18
+                  y: 4
+              - dropdown:
+                  id: dd_preset
+                  width: 300
+                  y: 32
+                  dir: BOTTOM
+                  options:
+                    - "Off"
+                    - "Ciemniej"
+                    - "Normalnie"
+                    - "Jaśniej"
+                    - "100%"
+                  selected_index: 2
+                  on_change:
+                    then:
+                      - if:
+                          condition:
+                            lambda: 'return x == 0;'
+                          then:
+                            - homeassistant.service:
+                                service: light.turn_off
+                                data:
+                                  entity_id: "light.hue_white_light_1, light.hue_white_light_1_3, light.hue_white_light_1_4"
+                      - if:
+                          condition:
+                            lambda: 'return x == 1;'
+                          then:
+                            - homeassistant.service:
+                                service: select.select_option
+                                data:
+                                  entity_id: select.salon_adaptive_preset
+                                  option: "Trochę ciemniej"
+                      - if:
+                          condition:
+                            lambda: 'return x == 2;'
+                          then:
+                            - homeassistant.service:
+                                service: select.select_option
+                                data:
+                                  entity_id: select.salon_adaptive_preset
+                                  option: "Normalne"
+                      - if:
+                          condition:
+                            lambda: 'return x == 3;'
+                          then:
+                            - homeassistant.service:
+                                service: select.select_option
+                                data:
+                                  entity_id: select.salon_adaptive_preset
+                                  option: "Trochę jaśniej"
+                      - if:
+                          condition:
+                            lambda: 'return x == 4;'
+                          then:
+                            - homeassistant.service:
+                                service: select.select_option
+                                data:
+                                  entity_id: select.salon_adaptive_preset
+                                  option: "100%"
         - obj:
             id: panel_syp
             hidden: true
