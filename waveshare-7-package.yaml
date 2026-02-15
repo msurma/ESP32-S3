@@ -81,6 +81,9 @@ text_sensor:
   - platform: homeassistant
     id: weather_condition
     entity_id: weather.openweather
+  - platform: homeassistant
+    id: salon_preset
+    entity_id: select.salon_adaptive_preset
 
 # --- Fonts ---
 font:
@@ -458,12 +461,72 @@ lvgl:
             height: 264
             bg_opa: TRANSP
             border_width: 0
+            pad_all: 0
             scrollable: false
             widgets:
-              - label:
-                  align: CENTER
-                  text: "Strefy"
-                  text_color: 0x9E9E9E
+              # Adaptive lighting presets
+              - buttonmatrix:
+                  id: preset_buttons
+                  width: 784
+                  height: 48
+                  pad_all: 0
+                  one_checked: true
+                  rows:
+                    - buttons:
+                        - id: btn_preset_off
+                          text: "Off"
+                          control:
+                            checkable: true
+                          on_press:
+                            then:
+                              - homeassistant.service:
+                                  service: light.turn_off
+                                  data:
+                                    entity_id: "light.hue_white_light_1, light.hue_white_light_1_3, light.hue_white_light_1_4"
+                        - id: btn_preset_ciemniej
+                          text: "Ciemniej"
+                          control:
+                            checkable: true
+                          on_press:
+                            then:
+                              - homeassistant.service:
+                                  service: select.select_option
+                                  data:
+                                    entity_id: select.salon_adaptive_preset
+                                    option: "Trochę ciemniej"
+                        - id: btn_preset_normalnie
+                          text: "Normalnie"
+                          control:
+                            checkable: true
+                          on_press:
+                            then:
+                              - homeassistant.service:
+                                  service: select.select_option
+                                  data:
+                                    entity_id: select.salon_adaptive_preset
+                                    option: "Normalne"
+                        - id: btn_preset_jasniej
+                          text: "Jaśniej"
+                          control:
+                            checkable: true
+                          on_press:
+                            then:
+                              - homeassistant.service:
+                                  service: select.select_option
+                                  data:
+                                    entity_id: select.salon_adaptive_preset
+                                    option: "Trochę jaśniej"
+                        - id: btn_preset_100
+                          text: "100%"
+                          control:
+                            checkable: true
+                          on_press:
+                            then:
+                              - homeassistant.service:
+                                  service: select.select_option
+                                  data:
+                                    entity_id: select.salon_adaptive_preset
+                                    option: "100%"
         - obj:
             id: panel_zakupy
             hidden: true
