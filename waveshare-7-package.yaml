@@ -398,6 +398,117 @@ lvgl:
                   text: ""
                   text_font: icon_font_72
                   text_color: 0xE8A030
+        # --- Tab Bar ---
+        - buttonmatrix:
+            id: tab_bar
+            x: 8
+            y: 440
+            width: 784
+            height: 36
+            one_checked: true
+            rows:
+              - buttons:
+                  - id: btn_tab_strefy
+                    text: "Strefy"
+                    control:
+                      checkable: true
+                      checked: true
+                    on_press:
+                      then:
+                        - lvgl.widget.show: panel_strefy
+                        - lvgl.widget.hide: panel_zakupy
+                        - lvgl.widget.hide: panel_tramwaje
+                        - lvgl.widget.hide: panel_ustawienia
+                  - id: btn_tab_zakupy
+                    text: "Zakupy"
+                    control:
+                      checkable: true
+                    on_press:
+                      then:
+                        - lvgl.widget.hide: panel_strefy
+                        - lvgl.widget.show: panel_zakupy
+                        - lvgl.widget.hide: panel_tramwaje
+                        - lvgl.widget.hide: panel_ustawienia
+                  - id: btn_tab_tramwaje
+                    text: "Tramwaje"
+                    control:
+                      checkable: true
+                    on_press:
+                      then:
+                        - lvgl.widget.hide: panel_strefy
+                        - lvgl.widget.hide: panel_zakupy
+                        - lvgl.widget.show: panel_tramwaje
+                        - lvgl.widget.hide: panel_ustawienia
+                  - id: btn_tab_ustawienia
+                    text: "Ustawienia"
+                    control:
+                      checkable: true
+                    on_press:
+                      then:
+                        - lvgl.widget.hide: panel_strefy
+                        - lvgl.widget.hide: panel_zakupy
+                        - lvgl.widget.hide: panel_tramwaje
+                        - lvgl.widget.show: panel_ustawienia
+        # --- Tab Panels ---
+        - obj:
+            id: panel_strefy
+            x: 8
+            y: 168
+            width: 784
+            height: 264
+            bg_opa: TRANSP
+            border_width: 0
+            scrollable: false
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "Strefy"
+                  text_color: 0x9E9E9E
+        - obj:
+            id: panel_zakupy
+            hidden: true
+            x: 8
+            y: 168
+            width: 784
+            height: 264
+            bg_opa: TRANSP
+            border_width: 0
+            scrollable: false
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "Zakupy"
+                  text_color: 0x9E9E9E
+        - obj:
+            id: panel_tramwaje
+            hidden: true
+            x: 8
+            y: 168
+            width: 784
+            height: 264
+            bg_opa: TRANSP
+            border_width: 0
+            scrollable: false
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "Tramwaje"
+                  text_color: 0x9E9E9E
+        - obj:
+            id: panel_ustawienia
+            hidden: true
+            x: 8
+            y: 168
+            width: 784
+            height: 264
+            bg_opa: TRANSP
+            border_width: 0
+            scrollable: false
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "Ustawienia"
+                  text_color: 0x9E9E9E
 
 # --- Clock update ---
 interval:
