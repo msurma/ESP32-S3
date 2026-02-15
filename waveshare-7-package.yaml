@@ -48,6 +48,13 @@ sensor:
   - platform: homeassistant
     id: weather_dew_point
     entity_id: sensor.openweather_dew_point
+  # Powietrze (Syngeos Żelazna)
+  - platform: homeassistant
+    id: pm25
+    entity_id: sensor.syngeos_zelazna_pm2_5
+  - platform: homeassistant
+    id: pm10
+    entity_id: sensor.syngeos_zelazna_pm10
   # Strefa dzienna
   - platform: homeassistant
     id: salon_temp
@@ -296,19 +303,19 @@ lvgl:
                   text_font: montserrat_28
                   text: "--:--"
               - label:
-                  id: lbl_weather_icon
+                  id: lbl_pm25
                   align: LEFT_MID
                   x: 130
                   text_color: 0xFFFFFF
-                  text_font: icon_font_28
-                  text: ""
+                  text_font: icon_font_14
+                  text: "PM2.5: --"
               - label:
-                  id: lbl_weather_text
+                  id: lbl_pm10
                   align: LEFT_MID
-                  x: 164
+                  x: 290
                   text_color: 0xFFFFFF
                   text_font: icon_font_14
-                  text: ""
+                  text: "PM10: --"
               - label:
                   id: lbl_date
                   align: RIGHT_MID
@@ -807,61 +814,21 @@ interval:
             snprintf(buf, sizeof(buf), "%02d:%02d", now.hour, now.minute);
             return std::string(buf);
       - lvgl.label.update:
-          id: lbl_weather_icon
+          id: lbl_pm25
           text: !lambda |-
-            auto cond = id(weather_condition).state;
-            if (cond.empty()) return std::string("");
-            if (cond == "cloudy") return std::string("\U000F0590");
-            if (cond == "clear-night") return std::string("\U000F0594");
-            if (cond == "fog") return std::string("\U000F0591");
-            if (cond == "hail") return std::string("\U000F0592");
-            if (cond == "lightning") return std::string("\U000F0593");
-            if (cond == "lightning-rainy") return std::string("\U000F067E");
-            if (cond == "partlycloudy") return std::string("\U000F0595");
-            if (cond == "pouring") return std::string("\U000F0596");
-            if (cond == "rainy") return std::string("\U000F0597");
-            if (cond == "snowy") return std::string("\U000F0598");
-            if (cond == "snowy-rainy") return std::string("\U000F067F");
-            if (cond == "sunny") return std::string("\U000F0599");
-            if (cond == "windy") return std::string("\U000F059D");
-            if (cond == "windy-variant") return std::string("\U000F059E");
-            return std::string("\U000F0590");
+            float v = id(pm25).state;
+            if (std::isnan(v)) return std::string("PM2.5: --");
+            char buf[20];
+            snprintf(buf, sizeof(buf), "PM2.5: %.0f µg/m³", v);
+            return std::string(buf);
       - lvgl.label.update:
-          id: lbl_weather_text
+          id: lbl_pm10
           text: !lambda |-
-            auto cond = id(weather_condition).state;
-            float temp = id(weather_temp).state;
-            float hum = id(weather_humidity).state;
-            float dew = id(weather_dew_point).state;
-            if (cond.empty() || std::isnan(temp)) return std::string("");
-            std::string desc;
-            if (cond == "cloudy") desc = "pochmurno";
-            else if (cond == "clear-night") desc = "bezchmurnie";
-            else if (cond == "fog") desc = "mg\u0142a";
-            else if (cond == "hail") desc = "grad";
-            else if (cond == "lightning") desc = "burza";
-            else if (cond == "lightning-rainy") desc = "burza";
-            else if (cond == "partlycloudy") desc = "cz. zachmurzenie";
-            else if (cond == "pouring") desc = "ulewa";
-            else if (cond == "rainy") desc = "deszcz";
-            else if (cond == "snowy") desc = "snieg";
-            else if (cond == "snowy-rainy") desc = "snieg z deszcz.";
-            else if (cond == "sunny") desc = "slonecznie";
-            else if (cond == "windy") desc = "wietrznie";
-            else if (cond == "windy-variant") desc = "wietrznie";
-            else desc = cond;
-            char buf[80];
-            snprintf(buf, sizeof(buf), "%.0f°C  %s", temp, desc.c_str());
-            std::string result = buf;
-            if (!std::isnan(hum)) {
-              snprintf(buf, sizeof(buf), "   \U000F058E %.0f%%", hum);
-              result += buf;
-            }
-            if (!std::isnan(dew)) {
-              snprintf(buf, sizeof(buf), "   \U000F050F %.0f°C", dew);
-              result += buf;
-            }
-            return result;
+            float v = id(pm10).state;
+            if (std::isnan(v)) return std::string("PM10: --");
+            char buf[20];
+            snprintf(buf, sizeof(buf), "PM10: %.0f µg/m³", v);
+            return std::string(buf);
       - lvgl.label.update:
           id: lbl_date
           text: !lambda |-
