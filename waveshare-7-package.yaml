@@ -83,6 +83,7 @@ font:
           - "\U000F058E"  # water-percent
           - "\U000F050F"  # thermometer
           - "\U000F07D0"  # home-assistant
+          - "\U000F0335"  # lightbulb
   - file: "gfonts://Montserrat"
     id: icon_font_28
     size: 28
@@ -107,6 +108,35 @@ font:
           - "\U000F059E"  # weather-windy-variant
           - "\U000F067E"  # weather-lightning-rainy
           - "\U000F067F"  # weather-snowy-rainy
+          - "\U000F04B9"  # sofa
+          - "\U000F02E3"  # bed
+          - "\U000F0335"  # lightbulb
+  - file: "gfonts://Montserrat"
+    id: icon_font_72
+    size: 72
+    bpp: 4
+    glyphs: " "
+    extras:
+      - file:
+            type: web
+            url: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"
+        glyphs:
+          - "\U000F0590"  # weather-cloudy
+          - "\U000F0591"  # weather-fog
+          - "\U000F0592"  # weather-hail
+          - "\U000F0593"  # weather-lightning
+          - "\U000F0594"  # weather-night
+          - "\U000F0595"  # weather-partly-cloudy
+          - "\U000F0596"  # weather-pouring
+          - "\U000F0597"  # weather-rainy
+          - "\U000F0598"  # weather-snowy
+          - "\U000F0599"  # weather-sunny
+          - "\U000F059D"  # weather-windy
+          - "\U000F059E"  # weather-windy-variant
+          - "\U000F067E"  # weather-lightning-rainy
+          - "\U000F067F"  # weather-snowy-rainy
+          - "\U000F0322"  # laptop
+          - "\U000F02E3"  # bed
   - file: "gfonts://Montserrat"
     id: font_18
     size: 18
@@ -242,222 +272,94 @@ lvgl:
                   text_color: 0xFFFFFF
                   text_font: icon_font_14
                   text: "\U000F07D0"
-        # --- Column 1: Strefa dzienna ---
+        # --- Room Cards Row (120px each) ---
+        # Card 1: Strefa dzienna
         - obj:
             styles: card
             x: 8
             y: 40
             width: 256
-            height: 432
+            height: 120
             scrollable: false
             widgets:
               - label:
                   text: "Strefa dzienna"
                   text_font: font_18
               - label:
-                  y: 28
+                  y: 26
                   text: "21,1 °C"
                   text_font: montserrat_28
               - label:
-                  y: 60
+                  y: 58
                   text_color: 0x9E9E9E
-                  text: "48,0%  ·  p.rosy 9,7 °C"
+                  text: "48,0% · p.rosy 9,7 °C"
               - label:
-                  y: 88
+                  y: 76
                   text_color: 0x9E9E9E
                   text: "Grzejnik: 21,5 °C"
               - label:
-                  y: 108
-                  text_color: 0x9E9E9E
-                  text: "Okno: zamknięte"
-              # Lights
-              - obj:
-                  y: 140
-                  width: 232
-                  height: 36
-                  bg_color: 0x2A2A3E
-                  bg_opa: COVER
-                  radius: 8
-                  border_width: 0
-                  scrollable: false
-                  widgets:
-                    - label:
-                        align: LEFT_MID
-                        x: 8
-                        text: "Salon Góra"
-                    - label:
-                        align: RIGHT_MID
-                        x: -8
-                        text: "Off"
-                        text_color: 0x9E9E9E
-              - obj:
-                  y: 182
-                  width: 232
-                  height: 36
-                  bg_color: 0x2A2A3E
-                  bg_opa: COVER
-                  radius: 8
-                  border_width: 0
-                  scrollable: false
-                  widgets:
-                    - label:
-                        align: LEFT_MID
-                        x: 8
-                        text: "Kuchnia Góra"
-                    - label:
-                        align: RIGHT_MID
-                        x: -8
-                        text: "54%"
-                        text_color: 0xE8A030
-              - obj:
-                  y: 224
-                  width: 232
-                  height: 36
-                  bg_color: 0x2A2A3E
-                  bg_opa: COVER
-                  radius: 8
-                  border_width: 0
-                  scrollable: false
-                  widgets:
-                    - label:
-                        align: LEFT_MID
-                        x: 8
-                        text: "Przedpokój Góra"
-                    - label:
-                        align: RIGHT_MID
-                        x: -8
-                        text: "52%"
-                        text_color: 0xE8A030
-              # Devices
-              - label:
-                  y: 276
-                  text_color: 0x9E9E9E
-                  text: "Zmywarka: wyłączona"
-              - label:
-                  y: 296
-                  text_color: 0x9E9E9E
-                  text: "Mokradełko: 50%"
-              - label:
-                  y: 316
-                  text_color: 0x9E9E9E
-                  text: "Czyścidełko: auto"
-              - label:
-                  y: 336
-                  text_color: 0x9E9E9E
-                  text: "PM2.5: 22 µg/m³"
-        # --- Column 2: Sypialnia ---
+                  align: TOP_RIGHT
+                  text: "\U000F0322"
+                  text_font: icon_font_72
+                  text_color: 0xE8A030
+        # Card 2: Sypialnia
         - obj:
             styles: card
             x: 272
             y: 40
             width: 256
-            height: 432
+            height: 120
             scrollable: false
             widgets:
               - label:
                   text: "Sypialnia"
                   text_font: font_18
               - label:
-                  y: 28
+                  y: 26
                   text: "18,5 °C"
                   text_font: montserrat_28
               - label:
-                  y: 60
+                  y: 58
                   text_color: 0x9E9E9E
-                  text: "42,9%  ·  p.rosy 5,6 °C"
+                  text: "42,9% · p.rosy 5,6 °C"
               - label:
-                  y: 88
+                  y: 76
                   text_color: 0x9E9E9E
                   text: "Grzejnik: 18,5 °C"
               - label:
-                  y: 108
-                  text_color: 0x9E9E9E
-                  text: "Okna: zamknięte"
-              # Lights
-              - obj:
-                  y: 140
-                  width: 232
-                  height: 36
-                  bg_color: 0x2A2A3E
-                  bg_opa: COVER
-                  radius: 8
-                  border_width: 0
-                  scrollable: false
-                  widgets:
-                    - label:
-                        align: LEFT_MID
-                        x: 8
-                        text: "Sypialnia Góra"
-                    - label:
-                        align: RIGHT_MID
-                        x: -8
-                        text: "Off"
-                        text_color: 0x9E9E9E
-              - obj:
-                  y: 182
-                  width: 232
-                  height: 36
-                  bg_color: 0x2A2A3E
-                  bg_opa: COVER
-                  radius: 8
-                  border_width: 0
-                  scrollable: false
-                  widgets:
-                    - label:
-                        align: LEFT_MID
-                        x: 8
-                        text: "Lampa Stojąca"
-                    - label:
-                        align: RIGHT_MID
-                        x: -8
-                        text: "10%"
-                        text_color: 0xE8A030
-              # Devices
-              - label:
-                  y: 234
-                  text_color: 0x9E9E9E
-                  text: "TV: Off"
-        # --- Column 3: Łazienka ---
+                  align: TOP_RIGHT
+                  text: "\U000F02E3"
+                  text_font: icon_font_72
+                  text_color: 0xE8A030
+        # Card 3: Pogoda
         - obj:
             styles: card
             x: 536
             y: 40
             width: 256
-            height: 432
+            height: 120
             scrollable: false
             widgets:
               - label:
-                  text: "Łazienka"
+                  text: "Pogoda"
                   text_font: font_18
-              # Light
-              - obj:
-                  y: 32
-                  width: 232
-                  height: 36
-                  bg_color: 0x2A2A3E
-                  bg_opa: COVER
-                  radius: 8
-                  border_width: 0
-                  scrollable: false
-                  widgets:
-                    - label:
-                        align: LEFT_MID
-                        x: 8
-                        text: "Łazienka"
-                    - label:
-                        align: RIGHT_MID
-                        x: -8
-                        text: "Off"
-                        text_color: 0x9E9E9E
-              # Devices
               - label:
-                  y: 84
-                  text_color: 0x9E9E9E
-                  text: "Pralka: —"
+                  y: 26
+                  text: "-4 °C"
+                  text_font: montserrat_28
               - label:
-                  y: 104
+                  y: 58
                   text_color: 0x9E9E9E
-                  text: "Suszarka: —"
+                  text: "pochmurno"
+              - label:
+                  y: 76
+                  text_color: 0x9E9E9E
+                  text: "\U000F058E 81% · p.rosy -7 °C"
+              - label:
+                  align: TOP_RIGHT
+                  text: "\U000F0590"
+                  text_font: icon_font_72
+                  text_color: 0xE8A030
 
 # --- Clock update ---
 interval:
