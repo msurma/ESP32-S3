@@ -15,6 +15,21 @@ esp32:
 psram:
   speed: 80MHz
 
+# --- API status ---
+api:
+  on_client_connected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.show: lbl_hastatus
+  on_client_disconnected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.hide: lbl_hastatus
+
 # --- Time ---
 time:
   - platform: homeassistant
@@ -67,6 +82,7 @@ font:
           - "\U000F067F"  # weather-snowy-rainy
           - "\U000F058E"  # water-percent
           - "\U000F050F"  # thermometer
+          - "\U000F07D0"  # home-assistant
   - file: "gfonts://Montserrat"
     id: icon_font_28
     size: 28
@@ -138,9 +154,17 @@ lvgl:
               - label:
                   id: lbl_date
                   align: RIGHT_MID
+                  x: -20
                   text_color: 0xFFFFFF
                   text_font: montserrat_14
                   text: ""
+              - label:
+                  id: lbl_hastatus
+                  align: RIGHT_MID
+                  hidden: true
+                  text_color: 0xFFFFFF
+                  text_font: icon_font_14
+                  text: "\U000F07D0"
 
 # --- Clock update ---
 interval:
