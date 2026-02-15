@@ -202,6 +202,7 @@ lvgl:
         border_width: 0
         radius: 8
         text_color: 0xFFFFFF
+        text_font: icon_font_14
         pressed:
           bg_color: 0x3A3A4E
         checked:
@@ -306,12 +307,44 @@ lvgl:
         # --- Room Cards Row (120px each) ---
         # Card 1: Strefa dzienna
         - obj:
+            id: card_sz
             styles: card
             x: 8
             y: 40
             width: 256
             height: 120
             scrollable: false
+            border_width: 2
+            border_color: 0xE8A030
+            on_click:
+              then:
+                - lvgl.widget.show: panel_sz
+                - lvgl.widget.hide: panel_syp
+                - lvgl.widget.hide: panel_pogoda
+                - lvgl.widget.hide: panel_zakupy
+                - lvgl.widget.hide: panel_tramwaje
+                - lvgl.widget.hide: panel_ustawienia
+                - lvgl.widget.update:
+                    id: card_sz
+                    border_color: 0xE8A030
+                - lvgl.widget.update:
+                    id: card_syp
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_pogoda
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: btn_tab_zakupy
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_tramwaje
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_ustawienia
+                    state:
+                      checked: false
             widgets:
               - label:
                   text: "Strefa dzienna"
@@ -338,12 +371,44 @@ lvgl:
                   text_color: 0xE8A030
         # Card 2: Sypialnia
         - obj:
+            id: card_syp
             styles: card
             x: 272
             y: 40
             width: 256
             height: 120
             scrollable: false
+            border_width: 2
+            border_color: 0x1C1C2E
+            on_click:
+              then:
+                - lvgl.widget.hide: panel_sz
+                - lvgl.widget.show: panel_syp
+                - lvgl.widget.hide: panel_pogoda
+                - lvgl.widget.hide: panel_zakupy
+                - lvgl.widget.hide: panel_tramwaje
+                - lvgl.widget.hide: panel_ustawienia
+                - lvgl.widget.update:
+                    id: card_sz
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_syp
+                    border_color: 0xE8A030
+                - lvgl.widget.update:
+                    id: card_pogoda
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: btn_tab_zakupy
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_tramwaje
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_ustawienia
+                    state:
+                      checked: false
             widgets:
               - label:
                   text: "Sypialnia"
@@ -370,12 +435,44 @@ lvgl:
                   text_color: 0xE8A030
         # Card 3: Pogoda
         - obj:
+            id: card_pogoda
             styles: card
             x: 536
             y: 40
             width: 256
             height: 120
             scrollable: false
+            border_width: 2
+            border_color: 0x1C1C2E
+            on_click:
+              then:
+                - lvgl.widget.hide: panel_sz
+                - lvgl.widget.hide: panel_syp
+                - lvgl.widget.show: panel_pogoda
+                - lvgl.widget.hide: panel_zakupy
+                - lvgl.widget.hide: panel_tramwaje
+                - lvgl.widget.hide: panel_ustawienia
+                - lvgl.widget.update:
+                    id: card_sz
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_syp
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_pogoda
+                    border_color: 0xE8A030
+                - lvgl.widget.update:
+                    id: btn_tab_zakupy
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_tramwaje
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_ustawienia
+                    state:
+                      checked: false
             widgets:
               - label:
                   text: "Pogoda"
@@ -401,60 +498,130 @@ lvgl:
                   text: ""
                   text_font: icon_font_72
                   text_color: 0xE8A030
-        # --- Tab Bar ---
-        - buttonmatrix:
-            id: tab_bar
+        # --- Tab Bar (individual buttons) ---
+        - button:
+            id: btn_tab_zakupy
             x: 8
             y: 440
-            width: 784
+            width: 256
             height: 36
-            one_checked: true
-            rows:
-              - buttons:
-                  - id: btn_tab_strefy
-                    text: "Strefy"
-                    control:
-                      checkable: true
+            checkable: true
+            on_click:
+              then:
+                - lvgl.widget.hide: panel_sz
+                - lvgl.widget.hide: panel_syp
+                - lvgl.widget.hide: panel_pogoda
+                - lvgl.widget.show: panel_zakupy
+                - lvgl.widget.hide: panel_tramwaje
+                - lvgl.widget.hide: panel_ustawienia
+                - lvgl.widget.update:
+                    id: card_sz
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_syp
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_pogoda
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: btn_tab_zakupy
+                    state:
                       checked: true
-                    on_press:
-                      then:
-                        - lvgl.widget.show: panel_strefy
-                        - lvgl.widget.hide: panel_zakupy
-                        - lvgl.widget.hide: panel_tramwaje
-                        - lvgl.widget.hide: panel_ustawienia
-                  - id: btn_tab_zakupy
-                    text: "Zakupy"
-                    control:
-                      checkable: true
-                    on_press:
-                      then:
-                        - lvgl.widget.hide: panel_strefy
-                        - lvgl.widget.show: panel_zakupy
-                        - lvgl.widget.hide: panel_tramwaje
-                        - lvgl.widget.hide: panel_ustawienia
-                  - id: btn_tab_tramwaje
-                    text: "Tramwaje"
-                    control:
-                      checkable: true
-                    on_press:
-                      then:
-                        - lvgl.widget.hide: panel_strefy
-                        - lvgl.widget.hide: panel_zakupy
-                        - lvgl.widget.show: panel_tramwaje
-                        - lvgl.widget.hide: panel_ustawienia
-                  - id: btn_tab_ustawienia
-                    text: "Ustawienia"
-                    control:
-                      checkable: true
-                    on_press:
-                      then:
-                        - lvgl.widget.hide: panel_strefy
-                        - lvgl.widget.hide: panel_zakupy
-                        - lvgl.widget.hide: panel_tramwaje
-                        - lvgl.widget.show: panel_ustawienia
+                - lvgl.widget.update:
+                    id: btn_tab_tramwaje
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_ustawienia
+                    state:
+                      checked: false
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "Zakupy"
+        - button:
+            id: btn_tab_tramwaje
+            x: 272
+            y: 440
+            width: 256
+            height: 36
+            checkable: true
+            on_click:
+              then:
+                - lvgl.widget.hide: panel_sz
+                - lvgl.widget.hide: panel_syp
+                - lvgl.widget.hide: panel_pogoda
+                - lvgl.widget.hide: panel_zakupy
+                - lvgl.widget.show: panel_tramwaje
+                - lvgl.widget.hide: panel_ustawienia
+                - lvgl.widget.update:
+                    id: card_sz
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_syp
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_pogoda
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: btn_tab_zakupy
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_tramwaje
+                    state:
+                      checked: true
+                - lvgl.widget.update:
+                    id: btn_tab_ustawienia
+                    state:
+                      checked: false
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "Tramwaje"
+        - button:
+            id: btn_tab_ustawienia
+            x: 536
+            y: 440
+            width: 256
+            height: 36
+            checkable: true
+            on_click:
+              then:
+                - lvgl.widget.hide: panel_sz
+                - lvgl.widget.hide: panel_syp
+                - lvgl.widget.hide: panel_pogoda
+                - lvgl.widget.hide: panel_zakupy
+                - lvgl.widget.hide: panel_tramwaje
+                - lvgl.widget.show: panel_ustawienia
+                - lvgl.widget.update:
+                    id: card_sz
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_syp
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: card_pogoda
+                    border_color: 0x1C1C2E
+                - lvgl.widget.update:
+                    id: btn_tab_zakupy
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_tramwaje
+                    state:
+                      checked: false
+                - lvgl.widget.update:
+                    id: btn_tab_ustawienia
+                    state:
+                      checked: true
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "Ustawienia"
         # --- Tab Panels ---
         - obj:
-            id: panel_strefy
+            id: panel_sz
             x: 8
             y: 168
             width: 784
@@ -528,6 +695,38 @@ lvgl:
                                     entity_id: select.salon_adaptive_preset
                                     option: "100%"
         - obj:
+            id: panel_syp
+            hidden: true
+            x: 8
+            y: 168
+            width: 784
+            height: 264
+            bg_opa: TRANSP
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "Sypialnia"
+                  text_color: 0x9E9E9E
+        - obj:
+            id: panel_pogoda
+            hidden: true
+            x: 8
+            y: 168
+            width: 784
+            height: 264
+            bg_opa: TRANSP
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "Pogoda"
+                  text_color: 0x9E9E9E
+        - obj:
             id: panel_zakupy
             hidden: true
             x: 8
@@ -536,6 +735,7 @@ lvgl:
             height: 264
             bg_opa: TRANSP
             border_width: 0
+            pad_all: 0
             scrollable: false
             widgets:
               - label:
@@ -551,6 +751,7 @@ lvgl:
             height: 264
             bg_opa: TRANSP
             border_width: 0
+            pad_all: 0
             scrollable: false
             widgets:
               - label:
@@ -566,6 +767,7 @@ lvgl:
             height: 264
             bg_opa: TRANSP
             border_width: 0
+            pad_all: 0
             scrollable: false
             widgets:
               - label:
