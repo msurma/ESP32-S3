@@ -55,6 +55,32 @@ sensor:
   - platform: homeassistant
     id: pm10
     entity_id: sensor.syngeos_zelazna_pm10
+  # Światła - jasność (0-255)
+  - platform: homeassistant
+    id: light_salon_brightness
+    entity_id: light.hue_white_light_1
+    attribute: brightness
+  - platform: homeassistant
+    id: light_kuchnia_brightness
+    entity_id: light.hue_white_light_1_3
+    attribute: brightness
+  - platform: homeassistant
+    id: light_przedpokoj_brightness
+    entity_id: light.hue_white_light_1_4
+    attribute: brightness
+  # Światła - temperatura barwowa (mireds)
+  - platform: homeassistant
+    id: light_salon_ct
+    entity_id: light.hue_white_light_1
+    attribute: color_temp
+  - platform: homeassistant
+    id: light_kuchnia_ct
+    entity_id: light.hue_white_light_1_3
+    attribute: color_temp
+  - platform: homeassistant
+    id: light_przedpokoj_ct
+    entity_id: light.hue_white_light_1_4
+    attribute: color_temp
   # Strefa dzienna
   - platform: homeassistant
     id: salon_temp
@@ -91,6 +117,15 @@ text_sensor:
   - platform: homeassistant
     id: salon_preset
     entity_id: select.salon_adaptive_preset
+  - platform: homeassistant
+    id: light_salon_state
+    entity_id: light.hue_white_light_1
+  - platform: homeassistant
+    id: light_kuchnia_state
+    entity_id: light.hue_white_light_1_3
+  - platform: homeassistant
+    id: light_przedpokoj_state
+    entity_id: light.hue_white_light_1_4
     on_value:
       then:
         - lambda: |-
@@ -670,15 +705,326 @@ lvgl:
             pad_all: 0
             scrollable: false
             widgets:
-              # Adaptive lighting presets
+              # === Column 1: Światła Mushroom-style (256px) ===
+              # --- Salon ---
+              - obj:
+                  styles: card
+                  x: 0
+                  y: 0
+                  width: 256
+                  height: 52
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - obj:
+                        x: 0
+                        y: 0
+                        width: 100
+                        height: 52
+                        bg_opa: TRANSP
+                        border_width: 0
+                        scrollable: false
+                        on_click:
+                          then:
+                            - homeassistant.service:
+                                service: light.toggle
+                                data:
+                                  entity_id: light.hue_white_light_1
+                        widgets:
+                          - label:
+                              id: ico_salon
+                              x: 8
+                              align: LEFT_MID
+                              text: "\U000F0335"
+                              text_font: icon_font_28
+                              text_color: 0x9E9E9E
+                          - label:
+                              x: 42
+                              y: 8
+                              text: "Salon"
+                          - label:
+                              id: lbl_salon_status
+                              x: 42
+                              y: 24
+                              text_color: 0x9E9E9E
+                              text: "Off"
+                    - slider:
+                        id: sl_bright_salon
+                        x: 102
+                        y: 9
+                        width: 120
+                        height: 34
+                        min_value: 0
+                        max_value: 255
+                        on_release:
+                          then:
+                            - homeassistant.service:
+                                service: light.turn_on
+                                data:
+                                  entity_id: light.hue_white_light_1
+                                data_template:
+                                  brightness: "{{ brightness | int }}"
+                                variables:
+                                  brightness: !lambda 'return lv_slider_get_value(id(sl_bright_salon));'
+                    - slider:
+                        id: sl_ct_salon
+                        hidden: true
+                        x: 102
+                        y: 9
+                        width: 120
+                        height: 34
+                        min_value: 153
+                        max_value: 454
+                        on_release:
+                          then:
+                            - homeassistant.service:
+                                service: light.turn_on
+                                data:
+                                  entity_id: light.hue_white_light_1
+                                data_template:
+                                  color_temp: "{{ ct | int }}"
+                                variables:
+                                  ct: !lambda 'return lv_slider_get_value(id(sl_ct_salon));'
+                    - obj:
+                        x: 226
+                        y: 0
+                        width: 30
+                        height: 52
+                        bg_opa: TRANSP
+                        border_width: 0
+                        scrollable: false
+                        on_click:
+                          then:
+                            - lambda: |-
+                                if (lv_obj_has_flag(id(sl_ct_salon), LV_OBJ_FLAG_HIDDEN)) {
+                                  lv_obj_add_flag(id(sl_bright_salon), LV_OBJ_FLAG_HIDDEN);
+                                  lv_obj_clear_flag(id(sl_ct_salon), LV_OBJ_FLAG_HIDDEN);
+                                } else {
+                                  lv_obj_clear_flag(id(sl_bright_salon), LV_OBJ_FLAG_HIDDEN);
+                                  lv_obj_add_flag(id(sl_ct_salon), LV_OBJ_FLAG_HIDDEN);
+                                }
+                        widgets:
+                          - label:
+                              id: ico_ct_salon
+                              align: CENTER
+                              text: "\U000F050F"
+                              text_color: 0x9E9E9E
+              # --- Kuchnia ---
+              - obj:
+                  styles: card
+                  x: 0
+                  y: 56
+                  width: 256
+                  height: 52
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - obj:
+                        x: 0
+                        y: 0
+                        width: 100
+                        height: 52
+                        bg_opa: TRANSP
+                        border_width: 0
+                        scrollable: false
+                        on_click:
+                          then:
+                            - homeassistant.service:
+                                service: light.toggle
+                                data:
+                                  entity_id: light.hue_white_light_1_3
+                        widgets:
+                          - label:
+                              id: ico_kuchnia
+                              x: 8
+                              align: LEFT_MID
+                              text: "\U000F0335"
+                              text_font: icon_font_28
+                              text_color: 0x9E9E9E
+                          - label:
+                              x: 42
+                              y: 8
+                              text: "Kuchnia"
+                          - label:
+                              id: lbl_kuchnia_status
+                              x: 42
+                              y: 24
+                              text_color: 0x9E9E9E
+                              text: "Off"
+                    - slider:
+                        id: sl_bright_kuchnia
+                        x: 102
+                        y: 9
+                        width: 120
+                        height: 34
+                        min_value: 0
+                        max_value: 255
+                        on_release:
+                          then:
+                            - homeassistant.service:
+                                service: light.turn_on
+                                data:
+                                  entity_id: light.hue_white_light_1_3
+                                data_template:
+                                  brightness: "{{ brightness | int }}"
+                                variables:
+                                  brightness: !lambda 'return lv_slider_get_value(id(sl_bright_kuchnia));'
+                    - slider:
+                        id: sl_ct_kuchnia
+                        hidden: true
+                        x: 102
+                        y: 9
+                        width: 120
+                        height: 34
+                        min_value: 153
+                        max_value: 454
+                        on_release:
+                          then:
+                            - homeassistant.service:
+                                service: light.turn_on
+                                data:
+                                  entity_id: light.hue_white_light_1_3
+                                data_template:
+                                  color_temp: "{{ ct | int }}"
+                                variables:
+                                  ct: !lambda 'return lv_slider_get_value(id(sl_ct_kuchnia));'
+                    - obj:
+                        x: 226
+                        y: 0
+                        width: 30
+                        height: 52
+                        bg_opa: TRANSP
+                        border_width: 0
+                        scrollable: false
+                        on_click:
+                          then:
+                            - lambda: |-
+                                if (lv_obj_has_flag(id(sl_ct_kuchnia), LV_OBJ_FLAG_HIDDEN)) {
+                                  lv_obj_add_flag(id(sl_bright_kuchnia), LV_OBJ_FLAG_HIDDEN);
+                                  lv_obj_clear_flag(id(sl_ct_kuchnia), LV_OBJ_FLAG_HIDDEN);
+                                } else {
+                                  lv_obj_clear_flag(id(sl_bright_kuchnia), LV_OBJ_FLAG_HIDDEN);
+                                  lv_obj_add_flag(id(sl_ct_kuchnia), LV_OBJ_FLAG_HIDDEN);
+                                }
+                        widgets:
+                          - label:
+                              id: ico_ct_kuchnia
+                              align: CENTER
+                              text: "\U000F050F"
+                              text_color: 0x9E9E9E
+              # --- Przedpokój ---
+              - obj:
+                  styles: card
+                  x: 0
+                  y: 112
+                  width: 256
+                  height: 52
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - obj:
+                        x: 0
+                        y: 0
+                        width: 100
+                        height: 52
+                        bg_opa: TRANSP
+                        border_width: 0
+                        scrollable: false
+                        on_click:
+                          then:
+                            - homeassistant.service:
+                                service: light.toggle
+                                data:
+                                  entity_id: light.hue_white_light_1_4
+                        widgets:
+                          - label:
+                              id: ico_przedpokoj
+                              x: 8
+                              align: LEFT_MID
+                              text: "\U000F0335"
+                              text_font: icon_font_28
+                              text_color: 0x9E9E9E
+                          - label:
+                              x: 42
+                              y: 8
+                              text: "Przedpokój"
+                          - label:
+                              id: lbl_przedpokoj_status
+                              x: 42
+                              y: 24
+                              text_color: 0x9E9E9E
+                              text: "Off"
+                    - slider:
+                        id: sl_bright_przedpokoj
+                        x: 102
+                        y: 9
+                        width: 120
+                        height: 34
+                        min_value: 0
+                        max_value: 255
+                        on_release:
+                          then:
+                            - homeassistant.service:
+                                service: light.turn_on
+                                data:
+                                  entity_id: light.hue_white_light_1_4
+                                data_template:
+                                  brightness: "{{ brightness | int }}"
+                                variables:
+                                  brightness: !lambda 'return lv_slider_get_value(id(sl_bright_przedpokoj));'
+                    - slider:
+                        id: sl_ct_przedpokoj
+                        hidden: true
+                        x: 102
+                        y: 9
+                        width: 120
+                        height: 34
+                        min_value: 153
+                        max_value: 454
+                        on_release:
+                          then:
+                            - homeassistant.service:
+                                service: light.turn_on
+                                data:
+                                  entity_id: light.hue_white_light_1_4
+                                data_template:
+                                  color_temp: "{{ ct | int }}"
+                                variables:
+                                  ct: !lambda 'return lv_slider_get_value(id(sl_ct_przedpokoj));'
+                    - obj:
+                        x: 226
+                        y: 0
+                        width: 30
+                        height: 52
+                        bg_opa: TRANSP
+                        border_width: 0
+                        scrollable: false
+                        on_click:
+                          then:
+                            - lambda: |-
+                                if (lv_obj_has_flag(id(sl_ct_przedpokoj), LV_OBJ_FLAG_HIDDEN)) {
+                                  lv_obj_add_flag(id(sl_bright_przedpokoj), LV_OBJ_FLAG_HIDDEN);
+                                  lv_obj_clear_flag(id(sl_ct_przedpokoj), LV_OBJ_FLAG_HIDDEN);
+                                } else {
+                                  lv_obj_clear_flag(id(sl_bright_przedpokoj), LV_OBJ_FLAG_HIDDEN);
+                                  lv_obj_add_flag(id(sl_ct_przedpokoj), LV_OBJ_FLAG_HIDDEN);
+                                }
+                        widgets:
+                          - label:
+                              id: ico_ct_przedpokoj
+                              align: CENTER
+                              text: "\U000F050F"
+                              text_color: 0x9E9E9E
+              # --- Preset dropdown ---
               - label:
-                  text: "Oświetlenie adaptacyjne"
-                  text_font: font_18
-                  y: 4
+                  text: "Preset"
+                  x: 0
+                  y: 172
               - dropdown:
                   id: dd_preset
-                  width: 300
-                  y: 32
+                  width: 256
+                  x: 0
+                  y: 190
                   dir: BOTTOM
                   options:
                     - "Off"
@@ -984,3 +1330,45 @@ interval:
             if (cond == "windy") return std::string("\U000F059D");
             if (cond == "windy-variant") return std::string("\U000F059E");
             return std::string("\U000F0590");
+      # --- Light cards sync ---
+      - lambda: |-
+          // Sync sliders
+          auto syncSl = [](lv_obj_t *sl, esphome::sensor::Sensor *sens) {
+            float v = sens->state;
+            if (!std::isnan(v)) lv_slider_set_value(sl, (int)v, LV_ANIM_OFF);
+          };
+          syncSl(id(sl_bright_salon), id(light_salon_brightness));
+          syncSl(id(sl_ct_salon), id(light_salon_ct));
+          syncSl(id(sl_bright_kuchnia), id(light_kuchnia_brightness));
+          syncSl(id(sl_ct_kuchnia), id(light_kuchnia_ct));
+          syncSl(id(sl_bright_przedpokoj), id(light_przedpokoj_brightness));
+          syncSl(id(sl_ct_przedpokoj), id(light_przedpokoj_ct));
+          // Sync icon colors + status
+          auto c_on = lv_color_hex(0xE8A030);
+          auto c_off = lv_color_hex(0x9E9E9E);
+          struct LightInfo {
+            lv_obj_t *ico; lv_obj_t *lbl; lv_obj_t *ico_ct;
+            esphome::text_sensor::TextSensor *state;
+            esphome::sensor::Sensor *bright;
+          };
+          LightInfo lights[] = {
+            {id(ico_salon), id(lbl_salon_status), id(ico_ct_salon), id(light_salon_state), id(light_salon_brightness)},
+            {id(ico_kuchnia), id(lbl_kuchnia_status), id(ico_ct_kuchnia), id(light_kuchnia_state), id(light_kuchnia_brightness)},
+            {id(ico_przedpokoj), id(lbl_przedpokoj_status), id(ico_ct_przedpokoj), id(light_przedpokoj_state), id(light_przedpokoj_brightness)},
+          };
+          for (auto &l : lights) {
+            bool on = l.state->state == "on";
+            lv_obj_set_style_text_color(l.ico, on ? c_on : c_off, 0);
+            lv_obj_set_style_text_color(l.ico_ct, on ? c_on : c_off, 0);
+            if (!on) {
+              lv_label_set_text(l.lbl, "Off");
+            } else {
+              float b = l.bright->state;
+              if (!std::isnan(b)) {
+                char buf[8]; snprintf(buf, sizeof(buf), "%.0f%%", b / 2.55f);
+                lv_label_set_text(l.lbl, buf);
+              } else {
+                lv_label_set_text(l.lbl, "On");
+              }
+            }
+          }
