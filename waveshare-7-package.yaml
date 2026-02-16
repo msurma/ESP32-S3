@@ -60,6 +60,16 @@ sensor:
   - platform: homeassistant
     id: pm10
     entity_id: sensor.syngeos_zelazna_pm10
+  # Pogoda - dodatkowe
+  - platform: homeassistant
+    id: weather_pressure
+    entity_id: sensor.openweather_pressure
+  - platform: homeassistant
+    id: weather_uv
+    entity_id: sensor.openweather_uv_index
+  - platform: homeassistant
+    id: weather_feels_like
+    entity_id: sensor.openweather_feels_like_temperature
   # Światła - jasność (0-255)
   - platform: homeassistant
     id: light_salon_brightness
@@ -119,6 +129,14 @@ text_sensor:
   - platform: homeassistant
     id: weather_condition
     entity_id: weather.openweather
+  - platform: homeassistant
+    id: sun_rising
+    entity_id: sun.sun
+    attribute: next_rising
+  - platform: homeassistant
+    id: sun_setting
+    entity_id: sun.sun
+    attribute: next_setting
   - platform: homeassistant
     id: salon_preset
     entity_id: select.salon_adaptive_preset
@@ -234,6 +252,30 @@ font:
     size: 18
     bpp: 4
     glyphs: ' !"%()+,-./0123456789:;?°·—ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzĄĆĘŁŃÓŚŹŻąćęłńóśźżµ³'
+  - file: "gfonts://Montserrat"
+    id: icon_font_140
+    size: 140
+    bpp: 4
+    glyphs: " "
+    extras:
+      - file:
+            type: web
+            url: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"
+        glyphs:
+          - "\U000F0590"  # weather-cloudy
+          - "\U000F0591"  # weather-fog
+          - "\U000F0592"  # weather-hail
+          - "\U000F0593"  # weather-lightning
+          - "\U000F0594"  # weather-night
+          - "\U000F0595"  # weather-partly-cloudy
+          - "\U000F0596"  # weather-pouring
+          - "\U000F0597"  # weather-rainy
+          - "\U000F0598"  # weather-snowy
+          - "\U000F0599"  # weather-sunny
+          - "\U000F059D"  # weather-windy
+          - "\U000F059E"  # weather-windy-variant
+          - "\U000F067E"  # weather-lightning-rainy
+          - "\U000F067F"  # weather-snowy-rainy
 
 # --- LVGL UI ---
 lvgl:
@@ -1113,10 +1155,131 @@ lvgl:
             pad_all: 0
             scrollable: false
             widgets:
-              - label:
-                  align: CENTER
-                  text: "Pogoda"
-                  text_color: 0x9E9E9E
+              # === Kolumna 1: Pogoda (252px) ===
+              - obj:
+                  x: 0
+                  y: 0
+                  width: 252
+                  height: 264
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        id: lbl_wp_icon
+                        align: TOP_MID
+                        y: 0
+                        text: ""
+                        text_font: icon_font_140
+                        text_color: 0xE8A030
+                    - label:
+                        id: lbl_wp_temp
+                        align: TOP_MID
+                        y: 148
+                        text: "-- °C"
+                        text_font: montserrat_28
+                    - label:
+                        id: lbl_wp_feels
+                        align: TOP_MID
+                        y: 184
+                        text: ""
+                        text_color: 0x9E9E9E
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_cond
+                        align: TOP_MID
+                        y: 210
+                        text: ""
+                        text_font: font_18
+              # === Kolumna 2: Szczegóły (256px) ===
+              - obj:
+                  x: 276
+                  y: 0
+                  width: 256
+                  height: 264
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        text: "Szczegóły"
+                        text_font: font_18
+                        text_color: 0x9E9E9E
+                    - label:
+                        id: lbl_wp_humidity
+                        y: 32
+                        text: "Wilgotność: --"
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_dewpoint
+                        y: 62
+                        text: "Punkt rosy: --"
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_pressure
+                        y: 92
+                        text: "Ciśnienie: --"
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_uv
+                        y: 122
+                        text: "UV: --"
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_sunrise
+                        y: 168
+                        text: "Wschód: --"
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_sunset
+                        y: 198
+                        text: "Zachód: --"
+                        text_font: font_18
+              # === Kolumna 3: Jakość powietrza (256px) ===
+              - obj:
+                  x: 540
+                  y: 0
+                  width: 256
+                  height: 264
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        text: "Jakość powietrza"
+                        text_font: font_18
+                        text_color: 0x9E9E9E
+                    - label:
+                        text: "PM2.5"
+                        y: 44
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_pm25
+                        y: 68
+                        text: "-- µg/m³"
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_pm25_level
+                        y: 102
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        text: "PM10"
+                        y: 140
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_pm10
+                        y: 164
+                        text: "-- µg/m³"
+                        text_font: font_18
+                    - label:
+                        id: lbl_wp_pm10_level
+                        y: 198
+                        text: ""
+                        text_font: font_18
         - obj:
             id: panel_zakupy
             hidden: true
@@ -1690,6 +1853,139 @@ interval:
             if (cond == "windy") return std::string("\U000F059D");
             if (cond == "windy-variant") return std::string("\U000F059E");
             return std::string("\U000F0590");
+      # --- Weather panel update ---
+      - lvgl.label.update:
+          id: lbl_wp_icon
+          text: !lambda |-
+            auto cond = id(weather_condition).state;
+            if (cond.empty()) return std::string("");
+            if (cond == "cloudy") return std::string("\U000F0590");
+            if (cond == "clear-night") return std::string("\U000F0594");
+            if (cond == "fog") return std::string("\U000F0591");
+            if (cond == "hail") return std::string("\U000F0592");
+            if (cond == "lightning") return std::string("\U000F0593");
+            if (cond == "lightning-rainy") return std::string("\U000F067E");
+            if (cond == "partlycloudy") return std::string("\U000F0595");
+            if (cond == "pouring") return std::string("\U000F0596");
+            if (cond == "rainy") return std::string("\U000F0597");
+            if (cond == "snowy") return std::string("\U000F0598");
+            if (cond == "snowy-rainy") return std::string("\U000F067F");
+            if (cond == "sunny") return std::string("\U000F0599");
+            if (cond == "windy") return std::string("\U000F059D");
+            if (cond == "windy-variant") return std::string("\U000F059E");
+            return std::string("\U000F0590");
+      - lvgl.label.update:
+          id: lbl_wp_temp
+          text: !lambda |-
+            float v = id(weather_temp).state;
+            if (std::isnan(v)) return std::string("-- °C");
+            char n[8]; snprintf(n, sizeof(n), "%.0f", v);
+            return std::string(n) + " °C";
+      - lvgl.label.update:
+          id: lbl_wp_feels
+          text: !lambda |-
+            float v = id(weather_feels_like).state;
+            if (std::isnan(v)) return std::string("");
+            char n[8]; snprintf(n, sizeof(n), "%.0f", v);
+            return "odczuwalna " + std::string(n) + " °C";
+      - lvgl.label.update:
+          id: lbl_wp_cond
+          text: !lambda |-
+            auto cond = id(weather_condition).state;
+            if (cond.empty()) return std::string("");
+            if (cond == "cloudy") return std::string("pochmurno");
+            if (cond == "clear-night") return std::string("bezchmurnie");
+            if (cond == "fog") return std::string("mgła");
+            if (cond == "hail") return std::string("grad");
+            if (cond == "lightning") return std::string("burza");
+            if (cond == "lightning-rainy") return std::string("burza");
+            if (cond == "partlycloudy") return std::string("cz. zachmurzenie");
+            if (cond == "pouring") return std::string("ulewa");
+            if (cond == "rainy") return std::string("deszcz");
+            if (cond == "snowy") return std::string("śnieg");
+            if (cond == "snowy-rainy") return std::string("śnieg z deszcz.");
+            if (cond == "sunny") return std::string("słonecznie");
+            if (cond == "windy") return std::string("wietrznie");
+            if (cond == "windy-variant") return std::string("wietrznie");
+            return std::string(cond.c_str());
+      - lvgl.label.update:
+          id: lbl_wp_humidity
+          text: !lambda |-
+            float v = id(weather_humidity).state;
+            if (std::isnan(v)) return std::string("Wilgotność: --");
+            char buf[24]; snprintf(buf, sizeof(buf), "Wilgotność: %.0f%%", v);
+            return std::string(buf);
+      - lvgl.label.update:
+          id: lbl_wp_dewpoint
+          text: !lambda |-
+            float v = id(weather_dew_point).state;
+            if (std::isnan(v)) return std::string("Punkt rosy: --");
+            char n[8]; snprintf(n, sizeof(n), "%.0f", v);
+            return "Punkt rosy: " + std::string(n) + " °C";
+      - lvgl.label.update:
+          id: lbl_wp_pressure
+          text: !lambda |-
+            float v = id(weather_pressure).state;
+            if (std::isnan(v)) return std::string("Ciśnienie: --");
+            char buf[24]; snprintf(buf, sizeof(buf), "Ciśnienie: %.0f hPa", v);
+            return std::string(buf);
+      - lvgl.label.update:
+          id: lbl_wp_uv
+          text: !lambda |-
+            float v = id(weather_uv).state;
+            if (std::isnan(v)) return std::string("UV: --");
+            char buf[16]; snprintf(buf, sizeof(buf), "UV: %.0f", v);
+            return std::string(buf);
+      - lvgl.label.update:
+          id: lbl_wp_sunrise
+          text: !lambda |-
+            auto s = id(sun_rising).state;
+            if (s.length() >= 16) return "Wschód: " + s.substr(11, 5);
+            return std::string("Wschód: --");
+      - lvgl.label.update:
+          id: lbl_wp_sunset
+          text: !lambda |-
+            auto s = id(sun_setting).state;
+            if (s.length() >= 16) return "Zachód: " + s.substr(11, 5);
+            return std::string("Zachód: --");
+      - lambda: |-
+          // PM2.5 panel update
+          auto pm25_color = [](float v) -> lv_color_t {
+            if (v < 25) return lv_color_hex(0x4CAF50);
+            if (v < 50) return lv_color_hex(0xFFC107);
+            return lv_color_hex(0xF44336);
+          };
+          auto pm10_color = [](float v) -> lv_color_t {
+            if (v < 50) return lv_color_hex(0x4CAF50);
+            if (v < 100) return lv_color_hex(0xFFC107);
+            return lv_color_hex(0xF44336);
+          };
+          auto pm_level = [](float v, bool is_pm10) -> const char* {
+            if (is_pm10) {
+              if (v < 50) return "dobry";
+              if (v < 100) return "umiarkowany";
+              return "zły";
+            }
+            if (v < 25) return "dobry";
+            if (v < 50) return "umiarkowany";
+            return "zły";
+          };
+          float v25 = id(pm25).state;
+          if (!std::isnan(v25)) {
+            char buf[16]; snprintf(buf, sizeof(buf), "%.0f µg/m³", v25);
+            lv_label_set_text(id(lbl_wp_pm25), buf);
+            lv_obj_set_style_text_color(id(lbl_wp_pm25), pm25_color(v25), 0);
+            lv_label_set_text(id(lbl_wp_pm25_level), pm_level(v25, false));
+            lv_obj_set_style_text_color(id(lbl_wp_pm25_level), pm25_color(v25), 0);
+          }
+          float v10 = id(pm10).state;
+          if (!std::isnan(v10)) {
+            char buf[16]; snprintf(buf, sizeof(buf), "%.0f µg/m³", v10);
+            lv_label_set_text(id(lbl_wp_pm10), buf);
+            lv_obj_set_style_text_color(id(lbl_wp_pm10), pm10_color(v10), 0);
+            lv_label_set_text(id(lbl_wp_pm10_level), pm_level(v10, true));
+            lv_obj_set_style_text_color(id(lbl_wp_pm10_level), pm10_color(v10), 0);
+          }
       # --- Light cards sync ---
       - lambda: |-
           // Sync sliders
