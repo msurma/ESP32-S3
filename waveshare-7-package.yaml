@@ -15,6 +15,11 @@ esp32:
 psram:
   speed: 80MHz
 
+# --- HTTP client ---
+http_request:
+  id: http_client
+  timeout: 10s
+
 # --- API status ---
 api:
   on_client_connected:
@@ -170,6 +175,7 @@ font:
           - "\U000F050F"  # thermometer
           - "\U000F07D0"  # home-assistant
           - "\U000F0335"  # lightbulb
+          - "\U000F05A9"  # wifi (realtime)
   - file: "gfonts://Montserrat"
     id: icon_font_28
     size: 28
@@ -1139,10 +1145,364 @@ lvgl:
             pad_all: 0
             scrollable: false
             widgets:
+              # --- Refresh button ---
+              - button:
+                  id: btn_tram_refresh
+                  x: 0
+                  y: 0
+                  width: 160
+                  height: 36
+                  on_click:
+                    then:
+                      - lvgl.label.update:
+                          id: lbl_tram_status
+                          text: "Ładowanie..."
+                      - http_request.get:
+                          url: "https://nodered.miniak.xyz/api/llm/ztm_departures?source=tablet"
+                          capture_response: true
+                          max_response_buffer_size: 2048
+                          on_response:
+                            then:
+                              - lambda: |-
+                                  if (response->status_code != 200) {
+                                    char err[24];
+                                    snprintf(err, sizeof(err), "HTTP %d", response->status_code);
+                                    lv_label_set_text(id(lbl_tram_status), err);
+                                    return;
+                                  }
+                                  JsonDocument doc;
+                                  if (deserializeJson(doc, body)) {
+                                    lv_label_set_text(id(lbl_tram_status), "Błąd JSON");
+                                    return;
+                                  }
+                                  JsonArray arr = doc.as<JsonArray>();
+                                  lv_obj_t *rows[] = {id(row_tram_0), id(row_tram_1), id(row_tram_2), id(row_tram_3), id(row_tram_4), id(row_tram_5)};
+                                  lv_obj_t *cl[] = {id(lbl_tl_0), id(lbl_tl_1), id(lbl_tl_2), id(lbl_tl_3), id(lbl_tl_4), id(lbl_tl_5)};
+                                  lv_obj_t *cd[] = {id(lbl_td_0), id(lbl_td_1), id(lbl_td_2), id(lbl_td_3), id(lbl_td_4), id(lbl_td_5)};
+                                  lv_obj_t *cv[] = {id(lbl_tv_0), id(lbl_tv_1), id(lbl_tv_2), id(lbl_tv_3), id(lbl_tv_4), id(lbl_tv_5)};
+                                  lv_obj_t *ca[] = {id(lbl_ta_0), id(lbl_ta_1), id(lbl_ta_2), id(lbl_ta_3), id(lbl_ta_4), id(lbl_ta_5)};
+                                  lv_obj_t *cr[] = {id(lbl_tr_0), id(lbl_tr_1), id(lbl_tr_2), id(lbl_tr_3), id(lbl_tr_4), id(lbl_tr_5)};
+                                  int count = std::min((int)arr.size(), 6);
+                                  for (int i = 0; i < 6; i++) {
+                                    if (i < count) {
+                                      lv_obj_clear_flag(rows[i], LV_OBJ_FLAG_HIDDEN);
+                                      JsonObject item = arr[i];
+                                      lv_label_set_text(cl[i], item["line"] | "");
+                                      lv_label_set_text(cd[i], item["departureTime"] | "");
+                                      lv_label_set_text(cv[i], item["leaveHomeAt"] | "");
+                                      lv_label_set_text(ca[i], item["arrivalAt"] | "");
+                                      bool rt = item["realTime"] | false;
+                                      lv_label_set_text(cr[i], rt ? "\U000F05A9" : "");
+                                    } else {
+                                      lv_obj_add_flag(rows[i], LV_OBJ_FLAG_HIDDEN);
+                                    }
+                                  }
+                                  if (count == 0) {
+                                    lv_label_set_text(id(lbl_tram_status), "Brak odjazdów");
+                                  } else {
+                                    auto now = id(ha_time).now();
+                                    if (now.is_valid()) {
+                                      char ts[16];
+                                      snprintf(ts, sizeof(ts), "%02d:%02d", now.hour, now.minute);
+                                      lv_label_set_text(id(lbl_tram_status), ts);
+                                    } else {
+                                      lv_label_set_text(id(lbl_tram_status), "OK");
+                                    }
+                                  }
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text: "Odśwież"
+              # --- Status label ---
               - label:
-                  align: CENTER
-                  text: "Tramwaje"
+                  id: lbl_tram_status
+                  align: TOP_RIGHT
+                  y: 10
+                  text: ""
                   text_color: 0x9E9E9E
+              # --- Header row ---
+              - label:
+                  x: 20
+                  y: 44
+                  text: "Linia"
+                  text_font: font_18
+                  text_color: 0x9E9E9E
+              - label:
+                  x: 140
+                  y: 44
+                  text: "Odjazd"
+                  text_font: font_18
+                  text_color: 0x9E9E9E
+              - label:
+                  x: 300
+                  y: 44
+                  text: "Wyjdź o"
+                  text_font: font_18
+                  text_color: 0x9E9E9E
+              - label:
+                  x: 470
+                  y: 44
+                  text: "Dotrzesz o"
+                  text_font: font_18
+                  text_color: 0x9E9E9E
+              # --- Row 0 ---
+              - obj:
+                  id: row_tram_0
+                  hidden: true
+                  x: 0
+                  y: 68
+                  width: 784
+                  height: 28
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        id: lbl_tl_0
+                        x: 20
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_td_0
+                        x: 140
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tv_0
+                        x: 300
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_ta_0
+                        x: 470
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tr_0
+                        x: 660
+                        align: LEFT_MID
+                        text: ""
+                        text_color: 0x4CAF50
+              # --- Row 1 ---
+              - obj:
+                  id: row_tram_1
+                  hidden: true
+                  x: 0
+                  y: 96
+                  width: 784
+                  height: 28
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        id: lbl_tl_1
+                        x: 20
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_td_1
+                        x: 140
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tv_1
+                        x: 300
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_ta_1
+                        x: 470
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tr_1
+                        x: 660
+                        align: LEFT_MID
+                        text: ""
+                        text_color: 0x4CAF50
+              # --- Row 2 ---
+              - obj:
+                  id: row_tram_2
+                  hidden: true
+                  x: 0
+                  y: 124
+                  width: 784
+                  height: 28
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        id: lbl_tl_2
+                        x: 20
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_td_2
+                        x: 140
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tv_2
+                        x: 300
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_ta_2
+                        x: 470
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tr_2
+                        x: 660
+                        align: LEFT_MID
+                        text: ""
+                        text_color: 0x4CAF50
+              # --- Row 3 ---
+              - obj:
+                  id: row_tram_3
+                  hidden: true
+                  x: 0
+                  y: 152
+                  width: 784
+                  height: 28
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        id: lbl_tl_3
+                        x: 20
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_td_3
+                        x: 140
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tv_3
+                        x: 300
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_ta_3
+                        x: 470
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tr_3
+                        x: 660
+                        align: LEFT_MID
+                        text: ""
+                        text_color: 0x4CAF50
+              # --- Row 4 ---
+              - obj:
+                  id: row_tram_4
+                  hidden: true
+                  x: 0
+                  y: 180
+                  width: 784
+                  height: 28
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        id: lbl_tl_4
+                        x: 20
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_td_4
+                        x: 140
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tv_4
+                        x: 300
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_ta_4
+                        x: 470
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tr_4
+                        x: 660
+                        align: LEFT_MID
+                        text: ""
+                        text_color: 0x4CAF50
+              # --- Row 5 ---
+              - obj:
+                  id: row_tram_5
+                  hidden: true
+                  x: 0
+                  y: 208
+                  width: 784
+                  height: 28
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        id: lbl_tl_5
+                        x: 20
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_td_5
+                        x: 140
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tv_5
+                        x: 300
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_ta_5
+                        x: 470
+                        align: LEFT_MID
+                        text: ""
+                        text_font: font_18
+                    - label:
+                        id: lbl_tr_5
+                        x: 660
+                        align: LEFT_MID
+                        text: ""
+                        text_color: 0x4CAF50
         - obj:
             id: panel_ustawienia
             hidden: true
