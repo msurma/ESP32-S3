@@ -224,15 +224,105 @@ text_sensor:
   - platform: homeassistant
     id: light_salon_state
     entity_id: light.hue_white_light_1
+    on_value:
+      then:
+        - lambda: |-
+            bool on = id(light_salon_state).state == "on";
+            auto c = on ? lv_color_hex(0xE8A030) : lv_color_hex(0x9E9E9E);
+            lv_obj_set_style_text_color(id(ico_salon), c, 0);
+            lv_obj_set_style_text_color(id(ico_ct_salon), c, 0);
+            // Switch to brightness mode
+            lv_obj_clear_flag(id(sl_bright_salon), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(sl_ct_salon), LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text(id(ico_ct_salon), "\U000F050F");
+            // Sync sliders
+            id(syncing_sliders) = true;
+            if (!on) {
+              lv_slider_set_value(id(sl_bright_salon), 0, LV_ANIM_OFF);
+              lv_label_set_text(id(lbl_salon_status), "Off");
+            } else {
+              float b = id(light_salon_brightness).state;
+              float ct = id(light_salon_ct).state;
+              if (!std::isnan(b)) lv_slider_set_value(id(sl_bright_salon), (int)b, LV_ANIM_OFF);
+              if (!std::isnan(ct)) lv_slider_set_value(id(sl_ct_salon), 607 - (int)ct, LV_ANIM_OFF);
+              char buf[20];
+              if (!std::isnan(b) && !std::isnan(ct)) {
+                snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct + 0.5f), (int)(b / 2.55f));
+              } else if (!std::isnan(b)) {
+                snprintf(buf, sizeof(buf), "%d%%", (int)(b / 2.55f));
+              } else {
+                snprintf(buf, sizeof(buf), "On");
+              }
+              lv_label_set_text(id(lbl_salon_status), buf);
+            }
+            id(syncing_sliders) = false;
   - platform: homeassistant
     id: light_kuchnia_state
     entity_id: light.hue_white_light_1_3
+    on_value:
+      then:
+        - lambda: |-
+            bool on = id(light_kuchnia_state).state == "on";
+            auto c = on ? lv_color_hex(0xE8A030) : lv_color_hex(0x9E9E9E);
+            lv_obj_set_style_text_color(id(ico_kuchnia), c, 0);
+            lv_obj_set_style_text_color(id(ico_ct_kuchnia), c, 0);
+            lv_obj_clear_flag(id(sl_bright_kuchnia), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(sl_ct_kuchnia), LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text(id(ico_ct_kuchnia), "\U000F050F");
+            id(syncing_sliders) = true;
+            if (!on) {
+              lv_slider_set_value(id(sl_bright_kuchnia), 0, LV_ANIM_OFF);
+              lv_label_set_text(id(lbl_kuchnia_status), "Off");
+            } else {
+              float b = id(light_kuchnia_brightness).state;
+              float ct = id(light_kuchnia_ct).state;
+              if (!std::isnan(b)) lv_slider_set_value(id(sl_bright_kuchnia), (int)b, LV_ANIM_OFF);
+              if (!std::isnan(ct)) lv_slider_set_value(id(sl_ct_kuchnia), 607 - (int)ct, LV_ANIM_OFF);
+              char buf[20];
+              if (!std::isnan(b) && !std::isnan(ct)) {
+                snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct + 0.5f), (int)(b / 2.55f));
+              } else if (!std::isnan(b)) {
+                snprintf(buf, sizeof(buf), "%d%%", (int)(b / 2.55f));
+              } else {
+                snprintf(buf, sizeof(buf), "On");
+              }
+              lv_label_set_text(id(lbl_kuchnia_status), buf);
+            }
+            id(syncing_sliders) = false;
   - platform: homeassistant
     id: light_przedpokoj_state
     entity_id: light.hue_white_light_1_4
     on_value:
       then:
         - lambda: |-
+            bool on = id(light_przedpokoj_state).state == "on";
+            auto c = on ? lv_color_hex(0xE8A030) : lv_color_hex(0x9E9E9E);
+            lv_obj_set_style_text_color(id(ico_przedpokoj), c, 0);
+            lv_obj_set_style_text_color(id(ico_ct_przedpokoj), c, 0);
+            lv_obj_clear_flag(id(sl_bright_przedpokoj), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(sl_ct_przedpokoj), LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text(id(ico_ct_przedpokoj), "\U000F050F");
+            id(syncing_sliders) = true;
+            if (!on) {
+              lv_slider_set_value(id(sl_bright_przedpokoj), 0, LV_ANIM_OFF);
+              lv_label_set_text(id(lbl_przedpokoj_status), "Off");
+            } else {
+              float b = id(light_przedpokoj_brightness).state;
+              float ct = id(light_przedpokoj_ct).state;
+              if (!std::isnan(b)) lv_slider_set_value(id(sl_bright_przedpokoj), (int)b, LV_ANIM_OFF);
+              if (!std::isnan(ct)) lv_slider_set_value(id(sl_ct_przedpokoj), 607 - (int)ct, LV_ANIM_OFF);
+              char buf[20];
+              if (!std::isnan(b) && !std::isnan(ct)) {
+                snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct + 0.5f), (int)(b / 2.55f));
+              } else if (!std::isnan(b)) {
+                snprintf(buf, sizeof(buf), "%d%%", (int)(b / 2.55f));
+              } else {
+                snprintf(buf, sizeof(buf), "On");
+              }
+              lv_label_set_text(id(lbl_przedpokoj_status), buf);
+            }
+            id(syncing_sliders) = false;
+            // Sync preset dropdown
             int idx = -1;
             auto v = id(salon_preset).state;
             if (v == "Trochę ciemniej") idx = 1;
@@ -275,6 +365,7 @@ font:
           - "\U000F07D0"  # home-assistant
           - "\U000F0335"  # lightbulb
           - "\U000F05A9"  # wifi (realtime)
+          - "\U000F035D"  # menu-down (dropdown arrow)
   - file: "gfonts://Montserrat"
     id: icon_font_28
     size: 28
@@ -303,6 +394,9 @@ font:
           - "\U000F02E3"  # bed
           - "\U000F0335"  # lightbulb
           - "\U000F050F"  # thermometer
+          - "\U000F0769"  # ceiling-light
+          - "\U000F065B"  # pot-mix
+          - "\U000F0F90"  # wardrobe
   - file: "gfonts://Montserrat"
     id: icon_font_72
     size: 72
@@ -865,7 +959,7 @@ lvgl:
                           - label:
                               id: ico_salon
                               align: CENTER
-                              text: "\U000F0335"
+                              text: "\U000F0769"
                               text_font: icon_font_28
                               text_color: 0x9E9E9E
                     # Name + Status
@@ -1026,7 +1120,7 @@ lvgl:
                           - label:
                               id: ico_kuchnia
                               align: CENTER
-                              text: "\U000F0335"
+                              text: "\U000F065B"
                               text_font: icon_font_28
                               text_color: 0x9E9E9E
                     - label:
@@ -1183,7 +1277,7 @@ lvgl:
                           - label:
                               id: ico_przedpokoj
                               align: CENTER
-                              text: "\U000F0335"
+                              text: "\U000F0F90"
                               text_font: icon_font_28
                               text_color: 0x9E9E9E
                     - label:
@@ -1323,6 +1417,8 @@ lvgl:
                   x: 0
                   y: 196
                   dir: BOTTOM
+                  text_font: icon_font_14
+                  symbol: "\U000F035D"
                   options:
                     - "Off"
                     - "Ciemniej"
@@ -1973,280 +2069,159 @@ interval:
             return std::string(buf);
   - interval: 10s
     then:
-      # --- Helper: comma-formatted number ---
-      # Strefa dzienna
-      - lvgl.label.update:
-          id: lbl_sz_temp
-          text: !lambda |-
-            float v = id(salon_temp).state;
-            if (std::isnan(v)) return std::string("-- °C");
-            char n[8]; snprintf(n, sizeof(n), "%.1f", v);
-            for (char *p = n; *p; p++) if (*p == '.') *p = ',';
-            return std::string(n) + " °C";
-      - lvgl.label.update:
-          id: lbl_sz_details
-          text: !lambda |-
-            float h = id(salon_humidity).state;
-            float d = id(salon_dew_point).state;
-            if (std::isnan(h)) return std::string("");
-            char hs[8], ds[8];
-            snprintf(hs, sizeof(hs), "%.1f", h);
-            for (char *p = hs; *p; p++) if (*p == '.') *p = ',';
-            std::string r = std::string(hs) + "%";
-            if (!std::isnan(d)) {
-              snprintf(ds, sizeof(ds), "%.1f", d);
-              for (char *p = ds; *p; p++) if (*p == '.') *p = ',';
-              r += " · p.rosy " + std::string(ds) + " °C";
-            }
-            return r;
-      - lvgl.label.update:
-          id: lbl_sz_thermostat
-          text: !lambda |-
-            float v = id(salon_thermostat).state;
-            if (std::isnan(v)) return std::string("Grzejnik: --");
-            char n[8]; snprintf(n, sizeof(n), "%.1f", v);
-            for (char *p = n; *p; p++) if (*p == '.') *p = ',';
-            return "Grzejnik: " + std::string(n) + " °C";
-      # Sypialnia
-      - lvgl.label.update:
-          id: lbl_syp_temp
-          text: !lambda |-
-            float v = id(sypialnia_temp).state;
-            if (std::isnan(v)) return std::string("-- °C");
-            char n[8]; snprintf(n, sizeof(n), "%.1f", v);
-            for (char *p = n; *p; p++) if (*p == '.') *p = ',';
-            return std::string(n) + " °C";
-      - lvgl.label.update:
-          id: lbl_syp_details
-          text: !lambda |-
-            float h = id(sypialnia_humidity).state;
-            float d = id(sypialnia_dew_point).state;
-            if (std::isnan(h)) return std::string("");
-            char hs[8], ds[8];
-            snprintf(hs, sizeof(hs), "%.1f", h);
-            for (char *p = hs; *p; p++) if (*p == '.') *p = ',';
-            std::string r = std::string(hs) + "%";
-            if (!std::isnan(d)) {
-              snprintf(ds, sizeof(ds), "%.1f", d);
-              for (char *p = ds; *p; p++) if (*p == '.') *p = ',';
-              r += " · p.rosy " + std::string(ds) + " °C";
-            }
-            return r;
-      - lvgl.label.update:
-          id: lbl_syp_thermostat
-          text: !lambda |-
-            float v = id(sypialnia_thermostat).state;
-            if (std::isnan(v)) return std::string("Grzejnik: --");
-            char n[8]; snprintf(n, sizeof(n), "%.1f", v);
-            for (char *p = n; *p; p++) if (*p == '.') *p = ',';
-            return "Grzejnik: " + std::string(n) + " °C";
-      # Pogoda
-      - lvgl.label.update:
-          id: lbl_pogoda_temp
-          text: !lambda |-
-            float v = id(weather_temp).state;
-            if (std::isnan(v)) return std::string("-- °C");
-            char n[8]; snprintf(n, sizeof(n), "%.0f", v);
-            return std::string(n) + " °C";
-      - lvgl.label.update:
-          id: lbl_pogoda_condition
-          text: !lambda |-
-            auto cond = id(weather_condition).state;
-            if (cond.empty()) return std::string("");
-            if (cond == "cloudy") return std::string("pochmurno");
-            if (cond == "clear-night") return std::string("bezchmurnie");
-            if (cond == "fog") return std::string("mgła");
-            if (cond == "hail") return std::string("grad");
-            if (cond == "lightning") return std::string("burza");
-            if (cond == "lightning-rainy") return std::string("burza");
-            if (cond == "partlycloudy") return std::string("cz. zachmurzenie");
-            if (cond == "pouring") return std::string("ulewa");
-            if (cond == "rainy") return std::string("deszcz");
-            if (cond == "snowy") return std::string("śnieg");
-            if (cond == "snowy-rainy") return std::string("śnieg z deszcz.");
-            if (cond == "sunny") return std::string("słonecznie");
-            if (cond == "windy") return std::string("wietrznie");
-            if (cond == "windy-variant") return std::string("wietrznie");
-            if (cond == "exceptional") return std::string("wyjątkowo");
-            return std::string(cond.c_str());
-      - lvgl.label.update:
-          id: lbl_pogoda_details
-          text: !lambda |-
-            float h = id(weather_humidity).state;
-            float d = id(weather_dew_point).state;
-            if (std::isnan(h)) return std::string("");
-            char buf[40];
-            if (!std::isnan(d)) {
-              snprintf(buf, sizeof(buf), "\U000F058E %.0f%% · p.rosy %.0f °C", h, d);
-            } else {
-              snprintf(buf, sizeof(buf), "\U000F058E %.0f%%", h);
-            }
-            return std::string(buf);
-      - lvgl.label.update:
-          id: lbl_pogoda_icon
-          text: !lambda |-
-            auto cond = id(weather_condition).state;
-            if (cond.empty()) return std::string("");
-            if (cond == "cloudy") return std::string("\U000F0590");
-            if (cond == "clear-night") return std::string("\U000F0594");
-            if (cond == "fog") return std::string("\U000F0591");
-            if (cond == "hail") return std::string("\U000F0592");
-            if (cond == "lightning") return std::string("\U000F0593");
-            if (cond == "lightning-rainy") return std::string("\U000F067E");
-            if (cond == "partlycloudy") return std::string("\U000F0595");
-            if (cond == "pouring") return std::string("\U000F0596");
-            if (cond == "rainy") return std::string("\U000F0597");
-            if (cond == "snowy") return std::string("\U000F0598");
-            if (cond == "snowy-rainy") return std::string("\U000F067F");
-            if (cond == "sunny") return std::string("\U000F0599");
-            if (cond == "windy") return std::string("\U000F059D");
-            if (cond == "windy-variant") return std::string("\U000F059E");
-            return std::string("\U000F0590");
-      # --- Weather panel update ---
-      - lvgl.label.update:
-          id: lbl_wp_icon
-          text: !lambda |-
-            auto cond = id(weather_condition).state;
-            if (cond.empty()) return std::string("");
-            if (cond == "cloudy") return std::string("\U000F0590");
-            if (cond == "clear-night") return std::string("\U000F0594");
-            if (cond == "fog") return std::string("\U000F0591");
-            if (cond == "hail") return std::string("\U000F0592");
-            if (cond == "lightning") return std::string("\U000F0593");
-            if (cond == "lightning-rainy") return std::string("\U000F067E");
-            if (cond == "partlycloudy") return std::string("\U000F0595");
-            if (cond == "pouring") return std::string("\U000F0596");
-            if (cond == "rainy") return std::string("\U000F0597");
-            if (cond == "snowy") return std::string("\U000F0598");
-            if (cond == "snowy-rainy") return std::string("\U000F067F");
-            if (cond == "sunny") return std::string("\U000F0599");
-            if (cond == "windy") return std::string("\U000F059D");
-            if (cond == "windy-variant") return std::string("\U000F059E");
-            return std::string("\U000F0590");
-      - lvgl.label.update:
-          id: lbl_wp_temp
-          text: !lambda |-
-            float v = id(weather_temp).state;
-            if (std::isnan(v)) return std::string("-- °C");
-            char n[8]; snprintf(n, sizeof(n), "%.0f", v);
-            return std::string(n) + " °C";
-      - lvgl.label.update:
-          id: lbl_wp_feels
-          text: !lambda |-
-            float v = id(weather_feels_like).state;
-            if (std::isnan(v)) return std::string("");
-            char n[8]; snprintf(n, sizeof(n), "%.0f", v);
-            return "odczuwalna " + std::string(n) + " °C";
-      - lvgl.label.update:
-          id: lbl_wp_cond
-          text: !lambda |-
-            auto cond = id(weather_condition).state;
-            if (cond.empty()) return std::string("");
-            if (cond == "cloudy") return std::string("pochmurno");
-            if (cond == "clear-night") return std::string("bezchmurnie");
-            if (cond == "fog") return std::string("mgła");
-            if (cond == "hail") return std::string("grad");
-            if (cond == "lightning") return std::string("burza");
-            if (cond == "lightning-rainy") return std::string("burza");
-            if (cond == "partlycloudy") return std::string("cz. zachmurzenie");
-            if (cond == "pouring") return std::string("ulewa");
-            if (cond == "rainy") return std::string("deszcz");
-            if (cond == "snowy") return std::string("śnieg");
-            if (cond == "snowy-rainy") return std::string("śnieg z deszcz.");
-            if (cond == "sunny") return std::string("słonecznie");
-            if (cond == "windy") return std::string("wietrznie");
-            if (cond == "windy-variant") return std::string("wietrznie");
-            return std::string(cond.c_str());
-      - lvgl.label.update:
-          id: lbl_wp_humidity
-          text: !lambda |-
-            float v = id(weather_humidity).state;
-            if (std::isnan(v)) return std::string("Wilgotność: --");
-            char buf[24]; snprintf(buf, sizeof(buf), "Wilgotność: %.0f%%", v);
-            return std::string(buf);
-      - lvgl.label.update:
-          id: lbl_wp_dewpoint
-          text: !lambda |-
-            float v = id(weather_dew_point).state;
-            if (std::isnan(v)) return std::string("Punkt rosy: --");
-            char n[8]; snprintf(n, sizeof(n), "%.0f", v);
-            return "Punkt rosy: " + std::string(n) + " °C";
-      - lvgl.label.update:
-          id: lbl_wp_pressure
-          text: !lambda |-
-            float v = id(weather_pressure).state;
-            if (std::isnan(v)) return std::string("Ciśnienie: --");
-            char buf[24]; snprintf(buf, sizeof(buf), "Ciśnienie: %.0f hPa", v);
-            return std::string(buf);
-      - lvgl.label.update:
-          id: lbl_wp_uv
-          text: !lambda |-
-            float v = id(weather_uv).state;
-            if (std::isnan(v)) return std::string("UV: --");
-            char buf[16]; snprintf(buf, sizeof(buf), "UV: %.0f", v);
-            return std::string(buf);
-      - lvgl.label.update:
-          id: lbl_wp_sunrise
-          text: !lambda |-
-            auto s = id(sun_rising).state;
-            if (s.length() >= 16) return "Wschód: " + s.substr(11, 5);
-            return std::string("Wschód: --");
-      - lvgl.label.update:
-          id: lbl_wp_sunset
-          text: !lambda |-
-            auto s = id(sun_setting).state;
-            if (s.length() >= 16) return "Zachód: " + s.substr(11, 5);
-            return std::string("Zachód: --");
       - lambda: |-
-          // PM2.5 panel update
-          auto pm25_color = [](float v) -> lv_color_t {
-            if (v < 25) return lv_color_hex(0x4CAF50);
-            if (v < 50) return lv_color_hex(0xFFC107);
-            return lv_color_hex(0xF44336);
+          // --- Single lambda: all 10s updates with change-detection to avoid flicker ---
+          auto setLbl = [](lv_obj_t *lbl, const char *text) {
+            if (strcmp(lv_label_get_text(lbl), text) != 0)
+              lv_label_set_text(lbl, text);
           };
-          auto pm10_color = [](float v) -> lv_color_t {
-            if (v < 50) return lv_color_hex(0x4CAF50);
-            if (v < 100) return lv_color_hex(0xFFC107);
-            return lv_color_hex(0xF44336);
+          auto fmtC = [](char *buf, size_t sz, const char *fmt, float v) {
+            snprintf(buf, sz, fmt, v);
+            for (char *p = buf; *p; p++) if (*p == '.') *p = ',';
           };
-          auto pm_level = [](float v, bool is_pm10) -> const char* {
-            if (is_pm10) {
-              if (v < 50) return "dobry";
-              if (v < 100) return "umiarkowany";
-              return "zły";
-            }
-            if (v < 25) return "dobry";
-            if (v < 50) return "umiarkowany";
-            return "zły";
+          auto condIcon = [](const std::string &c) -> const char* {
+            if (c == "cloudy") return "\U000F0590";
+            if (c == "clear-night") return "\U000F0594";
+            if (c == "fog") return "\U000F0591";
+            if (c == "hail") return "\U000F0592";
+            if (c == "lightning") return "\U000F0593";
+            if (c == "lightning-rainy") return "\U000F067E";
+            if (c == "partlycloudy") return "\U000F0595";
+            if (c == "pouring") return "\U000F0596";
+            if (c == "rainy") return "\U000F0597";
+            if (c == "snowy") return "\U000F0598";
+            if (c == "snowy-rainy") return "\U000F067F";
+            if (c == "sunny") return "\U000F0599";
+            if (c == "windy") return "\U000F059D";
+            if (c == "windy-variant") return "\U000F059E";
+            return "\U000F0590";
+          };
+          auto condText = [](const std::string &c) -> const char* {
+            if (c == "cloudy") return "pochmurno";
+            if (c == "clear-night") return "bezchmurnie";
+            if (c == "fog") return "mgła";
+            if (c == "hail") return "grad";
+            if (c == "lightning" || c == "lightning-rainy") return "burza";
+            if (c == "partlycloudy") return "cz. zachmurzenie";
+            if (c == "pouring") return "ulewa";
+            if (c == "rainy") return "deszcz";
+            if (c == "snowy") return "śnieg";
+            if (c == "snowy-rainy") return "śnieg z deszcz.";
+            if (c == "sunny") return "słonecznie";
+            if (c == "windy" || c == "windy-variant") return "wietrznie";
+            if (c == "exceptional") return "wyjątkowo";
+            return c.c_str();
+          };
+          char buf[48]; float v;
+          // === Strefa dzienna card ===
+          v = id(salon_temp).state;
+          if (std::isnan(v)) { setLbl(id(lbl_sz_temp), "-- °C"); }
+          else { fmtC(buf, sizeof(buf), "%.1f °C", v); setLbl(id(lbl_sz_temp), buf); }
+          v = id(salon_humidity).state;
+          if (std::isnan(v)) { setLbl(id(lbl_sz_details), ""); }
+          else {
+            char hs[8]; fmtC(hs, sizeof(hs), "%.1f", v);
+            float d = id(salon_dew_point).state;
+            if (!std::isnan(d)) { char ds[8]; fmtC(ds, sizeof(ds), "%.1f", d); snprintf(buf, sizeof(buf), "%s%% · p.rosy %s °C", hs, ds); }
+            else { snprintf(buf, sizeof(buf), "%s%%", hs); }
+            setLbl(id(lbl_sz_details), buf);
+          }
+          v = id(salon_thermostat).state;
+          if (std::isnan(v)) { setLbl(id(lbl_sz_thermostat), "Grzejnik: --"); }
+          else { fmtC(buf, sizeof(buf), "Grzejnik: %.1f °C", v); setLbl(id(lbl_sz_thermostat), buf); }
+          // === Sypialnia card ===
+          v = id(sypialnia_temp).state;
+          if (std::isnan(v)) { setLbl(id(lbl_syp_temp), "-- °C"); }
+          else { fmtC(buf, sizeof(buf), "%.1f °C", v); setLbl(id(lbl_syp_temp), buf); }
+          v = id(sypialnia_humidity).state;
+          if (std::isnan(v)) { setLbl(id(lbl_syp_details), ""); }
+          else {
+            char hs[8]; fmtC(hs, sizeof(hs), "%.1f", v);
+            float d = id(sypialnia_dew_point).state;
+            if (!std::isnan(d)) { char ds[8]; fmtC(ds, sizeof(ds), "%.1f", d); snprintf(buf, sizeof(buf), "%s%% · p.rosy %s °C", hs, ds); }
+            else { snprintf(buf, sizeof(buf), "%s%%", hs); }
+            setLbl(id(lbl_syp_details), buf);
+          }
+          v = id(sypialnia_thermostat).state;
+          if (std::isnan(v)) { setLbl(id(lbl_syp_thermostat), "Grzejnik: --"); }
+          else { fmtC(buf, sizeof(buf), "Grzejnik: %.1f °C", v); setLbl(id(lbl_syp_thermostat), buf); }
+          // === Pogoda card ===
+          v = id(weather_temp).state;
+          if (std::isnan(v)) { setLbl(id(lbl_pogoda_temp), "-- °C"); }
+          else { snprintf(buf, sizeof(buf), "%.0f °C", v); setLbl(id(lbl_pogoda_temp), buf); }
+          auto cond = id(weather_condition).state;
+          if (cond.empty()) { setLbl(id(lbl_pogoda_condition), ""); setLbl(id(lbl_pogoda_icon), ""); }
+          else { setLbl(id(lbl_pogoda_condition), condText(cond)); setLbl(id(lbl_pogoda_icon), condIcon(cond)); }
+          v = id(weather_humidity).state;
+          if (std::isnan(v)) { setLbl(id(lbl_pogoda_details), ""); }
+          else {
+            float d = id(weather_dew_point).state;
+            if (!std::isnan(d)) snprintf(buf, sizeof(buf), "\U000F058E %.0f%% · p.rosy %.0f °C", v, d);
+            else snprintf(buf, sizeof(buf), "\U000F058E %.0f%%", v);
+            setLbl(id(lbl_pogoda_details), buf);
+          }
+          // === Weather panel ===
+          if (cond.empty()) { setLbl(id(lbl_wp_icon), ""); }
+          else { setLbl(id(lbl_wp_icon), condIcon(cond)); }
+          v = id(weather_temp).state;
+          if (std::isnan(v)) { setLbl(id(lbl_wp_temp), "-- °C"); }
+          else { snprintf(buf, sizeof(buf), "%.0f °C", v); setLbl(id(lbl_wp_temp), buf); }
+          v = id(weather_feels_like).state;
+          if (std::isnan(v)) { setLbl(id(lbl_wp_feels), ""); }
+          else { snprintf(buf, sizeof(buf), "odczuwalna %.0f °C", v); setLbl(id(lbl_wp_feels), buf); }
+          if (cond.empty()) { setLbl(id(lbl_wp_cond), ""); }
+          else { setLbl(id(lbl_wp_cond), condText(cond)); }
+          v = id(weather_humidity).state;
+          if (std::isnan(v)) { setLbl(id(lbl_wp_humidity), "Wilgotność: --"); }
+          else { snprintf(buf, sizeof(buf), "Wilgotność: %.0f%%", v); setLbl(id(lbl_wp_humidity), buf); }
+          v = id(weather_dew_point).state;
+          if (std::isnan(v)) { setLbl(id(lbl_wp_dewpoint), "Punkt rosy: --"); }
+          else { snprintf(buf, sizeof(buf), "Punkt rosy: %.0f °C", v); setLbl(id(lbl_wp_dewpoint), buf); }
+          v = id(weather_pressure).state;
+          if (std::isnan(v)) { setLbl(id(lbl_wp_pressure), "Ciśnienie: --"); }
+          else { snprintf(buf, sizeof(buf), "Ciśnienie: %.0f hPa", v); setLbl(id(lbl_wp_pressure), buf); }
+          v = id(weather_uv).state;
+          if (std::isnan(v)) { setLbl(id(lbl_wp_uv), "UV: --"); }
+          else { snprintf(buf, sizeof(buf), "UV: %.0f", v); setLbl(id(lbl_wp_uv), buf); }
+          auto sr = id(sun_rising).state;
+          if (sr.length() >= 16) { snprintf(buf, sizeof(buf), "Wschód: %s", sr.substr(11, 5).c_str()); setLbl(id(lbl_wp_sunrise), buf); }
+          else { setLbl(id(lbl_wp_sunrise), "Wschód: --"); }
+          auto ss = id(sun_setting).state;
+          if (ss.length() >= 16) { snprintf(buf, sizeof(buf), "Zachód: %s", ss.substr(11, 5).c_str()); setLbl(id(lbl_wp_sunset), buf); }
+          else { setLbl(id(lbl_wp_sunset), "Zachód: --"); }
+          // === PM2.5 / PM10 ===
+          auto pm_color25 = [](float v) -> lv_color_t { return lv_color_hex(v < 25 ? 0x4CAF50 : v < 50 ? 0xFFC107 : 0xF44336); };
+          auto pm_color10 = [](float v) -> lv_color_t { return lv_color_hex(v < 50 ? 0x4CAF50 : v < 100 ? 0xFFC107 : 0xF44336); };
+          auto pm_lvl = [](float v, bool pm10) -> const char* {
+            if (pm10) return v < 50 ? "dobry" : v < 100 ? "umiarkowany" : "zły";
+            return v < 25 ? "dobry" : v < 50 ? "umiarkowany" : "zły";
           };
           float v25 = id(pm25).state;
           if (!std::isnan(v25)) {
-            char buf[16]; snprintf(buf, sizeof(buf), "%.0f µg/m³", v25);
-            lv_label_set_text(id(lbl_wp_pm25), buf);
-            lv_obj_set_style_text_color(id(lbl_wp_pm25), pm25_color(v25), 0);
-            lv_label_set_text(id(lbl_wp_pm25_level), pm_level(v25, false));
-            lv_obj_set_style_text_color(id(lbl_wp_pm25_level), pm25_color(v25), 0);
+            snprintf(buf, sizeof(buf), "%.0f µg/m³", v25);
+            setLbl(id(lbl_wp_pm25), buf);
+            lv_obj_set_style_text_color(id(lbl_wp_pm25), pm_color25(v25), 0);
+            setLbl(id(lbl_wp_pm25_level), pm_lvl(v25, false));
+            lv_obj_set_style_text_color(id(lbl_wp_pm25_level), pm_color25(v25), 0);
           }
           float v10 = id(pm10).state;
           if (!std::isnan(v10)) {
-            char buf[16]; snprintf(buf, sizeof(buf), "%.0f µg/m³", v10);
-            lv_label_set_text(id(lbl_wp_pm10), buf);
-            lv_obj_set_style_text_color(id(lbl_wp_pm10), pm10_color(v10), 0);
-            lv_label_set_text(id(lbl_wp_pm10_level), pm_level(v10, true));
-            lv_obj_set_style_text_color(id(lbl_wp_pm10_level), pm10_color(v10), 0);
+            snprintf(buf, sizeof(buf), "%.0f µg/m³", v10);
+            setLbl(id(lbl_wp_pm10), buf);
+            lv_obj_set_style_text_color(id(lbl_wp_pm10), pm_color10(v10), 0);
+            setLbl(id(lbl_wp_pm10_level), pm_lvl(v10, true));
+            lv_obj_set_style_text_color(id(lbl_wp_pm10_level), pm_color10(v10), 0);
           }
-      # --- Light cards sync ---
-      - lambda: |-
+          // === Light cards sync (with change-detection on sliders) ===
           id(syncing_sliders) = true;
-          // Sync brightness sliders
           auto syncSl = [](lv_obj_t *sl, esphome::sensor::Sensor *sens) {
             float v = sens->state;
-            if (!std::isnan(v)) lv_slider_set_value(sl, (int)v, LV_ANIM_OFF);
+            if (!std::isnan(v) && lv_slider_get_value(sl) != (int)v)
+              lv_slider_set_value(sl, (int)v, LV_ANIM_OFF);
           };
-          // Sync CT sliders (inverted: warm left, cool right)
           auto syncSlInv = [](lv_obj_t *sl, esphome::sensor::Sensor *sens) {
             float v = sens->state;
-            if (!std::isnan(v)) lv_slider_set_value(sl, 607 - (int)v, LV_ANIM_OFF);
+            if (!std::isnan(v)) { int t = 607 - (int)v; if (lv_slider_get_value(sl) != t) lv_slider_set_value(sl, t, LV_ANIM_OFF); }
           };
           syncSl(id(sl_bright_salon), id(light_salon_brightness));
           syncSlInv(id(sl_ct_salon), id(light_salon_ct));
@@ -2255,38 +2230,25 @@ interval:
           syncSl(id(sl_bright_przedpokoj), id(light_przedpokoj_brightness));
           syncSlInv(id(sl_ct_przedpokoj), id(light_przedpokoj_ct));
           id(syncing_sliders) = false;
-          // Sync icon colors + status (CT in Kelvin + brightness %)
           auto c_on = lv_color_hex(0xE8A030);
           auto c_off = lv_color_hex(0x9E9E9E);
-          struct LightInfo {
-            lv_obj_t *ico; lv_obj_t *lbl; lv_obj_t *ico_ct;
-            esphome::text_sensor::TextSensor *state;
-            esphome::sensor::Sensor *bright;
-            esphome::sensor::Sensor *ct;
-          };
-          LightInfo lights[] = {
+          struct LI { lv_obj_t *ico; lv_obj_t *lbl; lv_obj_t *ico_ct;
+            esphome::text_sensor::TextSensor *st; esphome::sensor::Sensor *br; esphome::sensor::Sensor *ct; };
+          LI lights[] = {
             {id(ico_salon), id(lbl_salon_status), id(ico_ct_salon), id(light_salon_state), id(light_salon_brightness), id(light_salon_ct)},
             {id(ico_kuchnia), id(lbl_kuchnia_status), id(ico_ct_kuchnia), id(light_kuchnia_state), id(light_kuchnia_brightness), id(light_kuchnia_ct)},
             {id(ico_przedpokoj), id(lbl_przedpokoj_status), id(ico_ct_przedpokoj), id(light_przedpokoj_state), id(light_przedpokoj_brightness), id(light_przedpokoj_ct)},
           };
           for (auto &l : lights) {
-            bool on = l.state->state == "on";
+            bool on = l.st->state == "on";
             lv_obj_set_style_text_color(l.ico, on ? c_on : c_off, 0);
             lv_obj_set_style_text_color(l.ico_ct, on ? c_on : c_off, 0);
-            if (!on) {
-              lv_label_set_text(l.lbl, "Off");
-            } else {
-              float b = l.bright->state;
-              float ct = l.ct->state;
-              char buf[20];
-              if (!std::isnan(b) && !std::isnan(ct)) {
-                int kelvin = (int)(1000000.0f / ct + 0.5f);
-                snprintf(buf, sizeof(buf), "%dK %d%%", kelvin, (int)(b / 2.55f));
-              } else if (!std::isnan(b)) {
-                snprintf(buf, sizeof(buf), "%d%%", (int)(b / 2.55f));
-              } else {
-                snprintf(buf, sizeof(buf), "On");
-              }
-              lv_label_set_text(l.lbl, buf);
+            if (!on) { setLbl(l.lbl, "Off"); }
+            else {
+              float b = l.br->state; float ct = l.ct->state;
+              if (!std::isnan(b) && !std::isnan(ct)) snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct + 0.5f), (int)(b / 2.55f));
+              else if (!std::isnan(b)) snprintf(buf, sizeof(buf), "%d%%", (int)(b / 2.55f));
+              else snprintf(buf, sizeof(buf), "On");
+              setLbl(l.lbl, buf);
             }
           }
