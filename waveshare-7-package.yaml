@@ -20,6 +20,87 @@ http_request:
   id: http_client
   timeout: 10s
 
+# --- Globals ---
+globals:
+  - id: syncing_sliders
+    type: bool
+    initial_value: 'false'
+
+# --- Throttled light update scripts (mode: single = HA call first, then cooldown) ---
+script:
+  - id: upd_salon_b
+    mode: single
+    then:
+      - homeassistant.service:
+          service: light.turn_on
+          data:
+            entity_id: light.hue_white_light_1
+          data_template:
+            brightness: "{{ brightness | int }}"
+          variables:
+            brightness: !lambda 'return lv_slider_get_value(id(sl_bright_salon));'
+      - delay: 200ms
+  - id: upd_salon_ct
+    mode: single
+    then:
+      - homeassistant.service:
+          service: light.turn_on
+          data:
+            entity_id: light.hue_white_light_1
+          data_template:
+            color_temp: "{{ ct | int }}"
+          variables:
+            ct: !lambda 'return 607 - lv_slider_get_value(id(sl_ct_salon));'
+      - delay: 200ms
+  - id: upd_kuchnia_b
+    mode: single
+    then:
+      - homeassistant.service:
+          service: light.turn_on
+          data:
+            entity_id: light.hue_white_light_1_3
+          data_template:
+            brightness: "{{ brightness | int }}"
+          variables:
+            brightness: !lambda 'return lv_slider_get_value(id(sl_bright_kuchnia));'
+      - delay: 200ms
+  - id: upd_kuchnia_ct
+    mode: single
+    then:
+      - homeassistant.service:
+          service: light.turn_on
+          data:
+            entity_id: light.hue_white_light_1_3
+          data_template:
+            color_temp: "{{ ct | int }}"
+          variables:
+            ct: !lambda 'return 607 - lv_slider_get_value(id(sl_ct_kuchnia));'
+      - delay: 200ms
+  - id: upd_przedpokoj_b
+    mode: single
+    then:
+      - homeassistant.service:
+          service: light.turn_on
+          data:
+            entity_id: light.hue_white_light_1_4
+          data_template:
+            brightness: "{{ brightness | int }}"
+          variables:
+            brightness: !lambda 'return lv_slider_get_value(id(sl_bright_przedpokoj));'
+      - delay: 200ms
+  - id: upd_przedpokoj_ct
+    mode: single
+    then:
+      - homeassistant.service:
+          service: light.turn_on
+          data:
+            entity_id: light.hue_white_light_1_4
+          data_template:
+            color_temp: "{{ ct | int }}"
+          variables:
+            ct: !lambda 'return 607 - lv_slider_get_value(id(sl_ct_przedpokoj));'
+      - delay: 200ms
+
 # --- API status ---
 api:
   on_client_connected:
@@ -221,6 +302,7 @@ font:
           - "\U000F04B9"  # sofa
           - "\U000F02E3"  # bed
           - "\U000F0335"  # lightbulb
+          - "\U000F050F"  # thermometer
   - file: "gfonts://Montserrat"
     id: icon_font_72
     size: 72
@@ -744,31 +826,32 @@ lvgl:
         # --- Tab Panels ---
         - obj:
             id: panel_sz
-            x: 8
+            x: 12
             y: 168
-            width: 784
+            width: 776
             height: 264
             bg_opa: TRANSP
             border_width: 0
             pad_all: 0
             scrollable: false
             widgets:
-              # === Column 1: Światła Mushroom-style (256px) ===
-              # --- Salon ---
+              # === Column 1: Światła Mushroom-style (5/12 = 323px) ===
+              # --- Salon Góra ---
               - obj:
                   styles: card
                   x: 0
                   y: 0
-                  width: 256
-                  height: 52
+                  width: 323
+                  height: 54
                   pad_all: 0
                   scrollable: false
                   widgets:
+                    # Lightbulb toggle (full height)
                     - obj:
                         x: 0
                         y: 0
-                        width: 100
-                        height: 52
+                        width: 48
+                        height: 54
                         bg_opa: TRANSP
                         border_width: 0
                         scrollable: false
@@ -781,63 +864,118 @@ lvgl:
                         widgets:
                           - label:
                               id: ico_salon
-                              x: 8
-                              align: LEFT_MID
+                              align: CENTER
                               text: "\U000F0335"
                               text_font: icon_font_28
                               text_color: 0x9E9E9E
-                          - label:
-                              x: 42
-                              y: 8
-                              text: "Salon"
-                          - label:
-                              id: lbl_salon_status
-                              x: 42
-                              y: 24
-                              text_color: 0x9E9E9E
-                              text: "Off"
+                    # Name + Status
+                    - label:
+                        x: 52
+                        y: 4
+                        text: "Salon Góra"
+                    - label:
+                        id: lbl_salon_status
+                        align: TOP_RIGHT
+                        x: -38
+                        y: 4
+                        text_color: 0x9E9E9E
+                        text: "Off"
+                    # Brightness slider
                     - slider:
                         id: sl_bright_salon
-                        x: 102
-                        y: 9
-                        width: 120
-                        height: 34
+                        x: 52
+                        y: 28
+                        width: 233
+                        height: 20
                         min_value: 0
                         max_value: 255
+                        on_value:
+                          then:
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - script.execute: upd_salon_b
+                                  - lambda: |-
+                                      int b = lv_slider_get_value(id(sl_bright_salon));
+                                      int ct_m = 607 - lv_slider_get_value(id(sl_ct_salon));
+                                      char buf[20];
+                                      snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct_m + 0.5f), (int)(b / 2.55f));
+                                      lv_label_set_text(id(lbl_salon_status), buf);
                         on_release:
                           then:
-                            - homeassistant.service:
-                                service: light.turn_on
-                                data:
-                                  entity_id: light.hue_white_light_1
-                                data_template:
-                                  brightness: "{{ brightness | int }}"
-                                variables:
-                                  brightness: !lambda 'return lv_slider_get_value(id(sl_bright_salon));'
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - homeassistant.service:
+                                      service: light.turn_on
+                                      data:
+                                        entity_id: light.hue_white_light_1
+                                      data_template:
+                                        brightness: "{{ brightness | int }}"
+                                      variables:
+                                        brightness: !lambda 'return lv_slider_get_value(id(sl_bright_salon));'
+                    # CT slider (gradient bg, thin knob)
                     - slider:
                         id: sl_ct_salon
                         hidden: true
-                        x: 102
-                        y: 9
-                        width: 120
-                        height: 34
+                        x: 52
+                        y: 28
+                        width: 233
+                        height: 20
                         min_value: 153
                         max_value: 454
+                        bg_color: 0xFFCC66
+                        bg_grad_color: 0xE0E0FF
+                        bg_grad_dir: HOR
+                        bg_opa: COVER
+                        border_width: 0
+                        radius: 10
+                        indicator:
+                          bg_opa: TRANSP
+                        knob:
+                          bg_color: 0xFFFFFF
+                          bg_opa: COVER
+                          border_width: 0
+                          pad_left: 3
+                          pad_right: 3
+                          pad_top: 3
+                          pad_bottom: 3
+                          radius: 3
+                        on_value:
+                          then:
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - script.execute: upd_salon_ct
+                                  - lambda: |-
+                                      int b = lv_slider_get_value(id(sl_bright_salon));
+                                      int ct_m = 607 - lv_slider_get_value(id(sl_ct_salon));
+                                      char buf[20];
+                                      snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct_m + 0.5f), (int)(b / 2.55f));
+                                      lv_label_set_text(id(lbl_salon_status), buf);
                         on_release:
                           then:
-                            - homeassistant.service:
-                                service: light.turn_on
-                                data:
-                                  entity_id: light.hue_white_light_1
-                                data_template:
-                                  color_temp: "{{ ct | int }}"
-                                variables:
-                                  ct: !lambda 'return lv_slider_get_value(id(sl_ct_salon));'
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - homeassistant.service:
+                                      service: light.turn_on
+                                      data:
+                                        entity_id: light.hue_white_light_1
+                                      data_template:
+                                        color_temp: "{{ ct | int }}"
+                                      variables:
+                                        ct: !lambda 'return 607 - lv_slider_get_value(id(sl_ct_salon));'
+                    # CT toggle (full height)
                     - obj:
-                        x: 226
+                        x: 287
                         y: 0
-                        width: 30
-                        height: 52
+                        width: 36
+                        height: 54
                         bg_opa: TRANSP
                         border_width: 0
                         scrollable: false
@@ -847,31 +985,34 @@ lvgl:
                                 if (lv_obj_has_flag(id(sl_ct_salon), LV_OBJ_FLAG_HIDDEN)) {
                                   lv_obj_add_flag(id(sl_bright_salon), LV_OBJ_FLAG_HIDDEN);
                                   lv_obj_clear_flag(id(sl_ct_salon), LV_OBJ_FLAG_HIDDEN);
+                                  lv_label_set_text(id(ico_ct_salon), "\U000F0599");
                                 } else {
                                   lv_obj_clear_flag(id(sl_bright_salon), LV_OBJ_FLAG_HIDDEN);
                                   lv_obj_add_flag(id(sl_ct_salon), LV_OBJ_FLAG_HIDDEN);
+                                  lv_label_set_text(id(ico_ct_salon), "\U000F050F");
                                 }
                         widgets:
                           - label:
                               id: ico_ct_salon
                               align: CENTER
                               text: "\U000F050F"
+                              text_font: icon_font_28
                               text_color: 0x9E9E9E
-              # --- Kuchnia ---
+              # --- Kuchnia Góra ---
               - obj:
                   styles: card
                   x: 0
-                  y: 56
-                  width: 256
-                  height: 52
+                  y: 58
+                  width: 323
+                  height: 54
                   pad_all: 0
                   scrollable: false
                   widgets:
                     - obj:
                         x: 0
                         y: 0
-                        width: 100
-                        height: 52
+                        width: 48
+                        height: 54
                         bg_opa: TRANSP
                         border_width: 0
                         scrollable: false
@@ -884,63 +1025,114 @@ lvgl:
                         widgets:
                           - label:
                               id: ico_kuchnia
-                              x: 8
-                              align: LEFT_MID
+                              align: CENTER
                               text: "\U000F0335"
                               text_font: icon_font_28
                               text_color: 0x9E9E9E
-                          - label:
-                              x: 42
-                              y: 8
-                              text: "Kuchnia"
-                          - label:
-                              id: lbl_kuchnia_status
-                              x: 42
-                              y: 24
-                              text_color: 0x9E9E9E
-                              text: "Off"
+                    - label:
+                        x: 52
+                        y: 4
+                        text: "Kuchnia Góra"
+                    - label:
+                        id: lbl_kuchnia_status
+                        align: TOP_RIGHT
+                        x: -38
+                        y: 4
+                        text_color: 0x9E9E9E
+                        text: "Off"
                     - slider:
                         id: sl_bright_kuchnia
-                        x: 102
-                        y: 9
-                        width: 120
-                        height: 34
+                        x: 52
+                        y: 28
+                        width: 233
+                        height: 20
                         min_value: 0
                         max_value: 255
+                        on_value:
+                          then:
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - script.execute: upd_kuchnia_b
+                                  - lambda: |-
+                                      int b = lv_slider_get_value(id(sl_bright_kuchnia));
+                                      int ct_m = 607 - lv_slider_get_value(id(sl_ct_kuchnia));
+                                      char buf[20];
+                                      snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct_m + 0.5f), (int)(b / 2.55f));
+                                      lv_label_set_text(id(lbl_kuchnia_status), buf);
                         on_release:
                           then:
-                            - homeassistant.service:
-                                service: light.turn_on
-                                data:
-                                  entity_id: light.hue_white_light_1_3
-                                data_template:
-                                  brightness: "{{ brightness | int }}"
-                                variables:
-                                  brightness: !lambda 'return lv_slider_get_value(id(sl_bright_kuchnia));'
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - homeassistant.service:
+                                      service: light.turn_on
+                                      data:
+                                        entity_id: light.hue_white_light_1_3
+                                      data_template:
+                                        brightness: "{{ brightness | int }}"
+                                      variables:
+                                        brightness: !lambda 'return lv_slider_get_value(id(sl_bright_kuchnia));'
                     - slider:
                         id: sl_ct_kuchnia
                         hidden: true
-                        x: 102
-                        y: 9
-                        width: 120
-                        height: 34
+                        x: 52
+                        y: 28
+                        width: 233
+                        height: 20
                         min_value: 153
                         max_value: 454
+                        bg_color: 0xFFCC66
+                        bg_grad_color: 0xE0E0FF
+                        bg_grad_dir: HOR
+                        bg_opa: COVER
+                        border_width: 0
+                        radius: 10
+                        indicator:
+                          bg_opa: TRANSP
+                        knob:
+                          bg_color: 0xFFFFFF
+                          bg_opa: COVER
+                          border_width: 0
+                          pad_left: 3
+                          pad_right: 3
+                          pad_top: 3
+                          pad_bottom: 3
+                          radius: 3
+                        on_value:
+                          then:
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - script.execute: upd_kuchnia_ct
+                                  - lambda: |-
+                                      int b = lv_slider_get_value(id(sl_bright_kuchnia));
+                                      int ct_m = 607 - lv_slider_get_value(id(sl_ct_kuchnia));
+                                      char buf[20];
+                                      snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct_m + 0.5f), (int)(b / 2.55f));
+                                      lv_label_set_text(id(lbl_kuchnia_status), buf);
                         on_release:
                           then:
-                            - homeassistant.service:
-                                service: light.turn_on
-                                data:
-                                  entity_id: light.hue_white_light_1_3
-                                data_template:
-                                  color_temp: "{{ ct | int }}"
-                                variables:
-                                  ct: !lambda 'return lv_slider_get_value(id(sl_ct_kuchnia));'
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - homeassistant.service:
+                                      service: light.turn_on
+                                      data:
+                                        entity_id: light.hue_white_light_1_3
+                                      data_template:
+                                        color_temp: "{{ ct | int }}"
+                                      variables:
+                                        ct: !lambda 'return 607 - lv_slider_get_value(id(sl_ct_kuchnia));'
                     - obj:
-                        x: 226
+                        x: 287
                         y: 0
-                        width: 30
-                        height: 52
+                        width: 36
+                        height: 54
                         bg_opa: TRANSP
                         border_width: 0
                         scrollable: false
@@ -950,31 +1142,34 @@ lvgl:
                                 if (lv_obj_has_flag(id(sl_ct_kuchnia), LV_OBJ_FLAG_HIDDEN)) {
                                   lv_obj_add_flag(id(sl_bright_kuchnia), LV_OBJ_FLAG_HIDDEN);
                                   lv_obj_clear_flag(id(sl_ct_kuchnia), LV_OBJ_FLAG_HIDDEN);
+                                  lv_label_set_text(id(ico_ct_kuchnia), "\U000F0599");
                                 } else {
                                   lv_obj_clear_flag(id(sl_bright_kuchnia), LV_OBJ_FLAG_HIDDEN);
                                   lv_obj_add_flag(id(sl_ct_kuchnia), LV_OBJ_FLAG_HIDDEN);
+                                  lv_label_set_text(id(ico_ct_kuchnia), "\U000F050F");
                                 }
                         widgets:
                           - label:
                               id: ico_ct_kuchnia
                               align: CENTER
                               text: "\U000F050F"
+                              text_font: icon_font_28
                               text_color: 0x9E9E9E
-              # --- Przedpokój ---
+              # --- Przedpokój Góra ---
               - obj:
                   styles: card
                   x: 0
-                  y: 112
-                  width: 256
-                  height: 52
+                  y: 116
+                  width: 323
+                  height: 54
                   pad_all: 0
                   scrollable: false
                   widgets:
                     - obj:
                         x: 0
                         y: 0
-                        width: 100
-                        height: 52
+                        width: 48
+                        height: 54
                         bg_opa: TRANSP
                         border_width: 0
                         scrollable: false
@@ -987,63 +1182,114 @@ lvgl:
                         widgets:
                           - label:
                               id: ico_przedpokoj
-                              x: 8
-                              align: LEFT_MID
+                              align: CENTER
                               text: "\U000F0335"
                               text_font: icon_font_28
                               text_color: 0x9E9E9E
-                          - label:
-                              x: 42
-                              y: 8
-                              text: "Przedpokój"
-                          - label:
-                              id: lbl_przedpokoj_status
-                              x: 42
-                              y: 24
-                              text_color: 0x9E9E9E
-                              text: "Off"
+                    - label:
+                        x: 52
+                        y: 4
+                        text: "Przedpokój Góra"
+                    - label:
+                        id: lbl_przedpokoj_status
+                        align: TOP_RIGHT
+                        x: -38
+                        y: 4
+                        text_color: 0x9E9E9E
+                        text: "Off"
                     - slider:
                         id: sl_bright_przedpokoj
-                        x: 102
-                        y: 9
-                        width: 120
-                        height: 34
+                        x: 52
+                        y: 28
+                        width: 233
+                        height: 20
                         min_value: 0
                         max_value: 255
+                        on_value:
+                          then:
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - script.execute: upd_przedpokoj_b
+                                  - lambda: |-
+                                      int b = lv_slider_get_value(id(sl_bright_przedpokoj));
+                                      int ct_m = 607 - lv_slider_get_value(id(sl_ct_przedpokoj));
+                                      char buf[20];
+                                      snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct_m + 0.5f), (int)(b / 2.55f));
+                                      lv_label_set_text(id(lbl_przedpokoj_status), buf);
                         on_release:
                           then:
-                            - homeassistant.service:
-                                service: light.turn_on
-                                data:
-                                  entity_id: light.hue_white_light_1_4
-                                data_template:
-                                  brightness: "{{ brightness | int }}"
-                                variables:
-                                  brightness: !lambda 'return lv_slider_get_value(id(sl_bright_przedpokoj));'
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - homeassistant.service:
+                                      service: light.turn_on
+                                      data:
+                                        entity_id: light.hue_white_light_1_4
+                                      data_template:
+                                        brightness: "{{ brightness | int }}"
+                                      variables:
+                                        brightness: !lambda 'return lv_slider_get_value(id(sl_bright_przedpokoj));'
                     - slider:
                         id: sl_ct_przedpokoj
                         hidden: true
-                        x: 102
-                        y: 9
-                        width: 120
-                        height: 34
+                        x: 52
+                        y: 28
+                        width: 233
+                        height: 20
                         min_value: 153
                         max_value: 454
+                        bg_color: 0xFFCC66
+                        bg_grad_color: 0xE0E0FF
+                        bg_grad_dir: HOR
+                        bg_opa: COVER
+                        border_width: 0
+                        radius: 10
+                        indicator:
+                          bg_opa: TRANSP
+                        knob:
+                          bg_color: 0xFFFFFF
+                          bg_opa: COVER
+                          border_width: 0
+                          pad_left: 3
+                          pad_right: 3
+                          pad_top: 3
+                          pad_bottom: 3
+                          radius: 3
+                        on_value:
+                          then:
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - script.execute: upd_przedpokoj_ct
+                                  - lambda: |-
+                                      int b = lv_slider_get_value(id(sl_bright_przedpokoj));
+                                      int ct_m = 607 - lv_slider_get_value(id(sl_ct_przedpokoj));
+                                      char buf[20];
+                                      snprintf(buf, sizeof(buf), "%dK %d%%", (int)(1000000.0f / ct_m + 0.5f), (int)(b / 2.55f));
+                                      lv_label_set_text(id(lbl_przedpokoj_status), buf);
                         on_release:
                           then:
-                            - homeassistant.service:
-                                service: light.turn_on
-                                data:
-                                  entity_id: light.hue_white_light_1_4
-                                data_template:
-                                  color_temp: "{{ ct | int }}"
-                                variables:
-                                  ct: !lambda 'return lv_slider_get_value(id(sl_ct_przedpokoj));'
+                            - if:
+                                condition:
+                                  lambda: 'return !id(syncing_sliders);'
+                                then:
+                                  - homeassistant.service:
+                                      service: light.turn_on
+                                      data:
+                                        entity_id: light.hue_white_light_1_4
+                                      data_template:
+                                        color_temp: "{{ ct | int }}"
+                                      variables:
+                                        ct: !lambda 'return 607 - lv_slider_get_value(id(sl_ct_przedpokoj));'
                     - obj:
-                        x: 226
+                        x: 287
                         y: 0
-                        width: 30
-                        height: 52
+                        width: 36
+                        height: 54
                         bg_opa: TRANSP
                         border_width: 0
                         scrollable: false
@@ -1053,26 +1299,29 @@ lvgl:
                                 if (lv_obj_has_flag(id(sl_ct_przedpokoj), LV_OBJ_FLAG_HIDDEN)) {
                                   lv_obj_add_flag(id(sl_bright_przedpokoj), LV_OBJ_FLAG_HIDDEN);
                                   lv_obj_clear_flag(id(sl_ct_przedpokoj), LV_OBJ_FLAG_HIDDEN);
+                                  lv_label_set_text(id(ico_ct_przedpokoj), "\U000F0599");
                                 } else {
                                   lv_obj_clear_flag(id(sl_bright_przedpokoj), LV_OBJ_FLAG_HIDDEN);
                                   lv_obj_add_flag(id(sl_ct_przedpokoj), LV_OBJ_FLAG_HIDDEN);
+                                  lv_label_set_text(id(ico_ct_przedpokoj), "\U000F050F");
                                 }
                         widgets:
                           - label:
                               id: ico_ct_przedpokoj
                               align: CENTER
                               text: "\U000F050F"
+                              text_font: icon_font_28
                               text_color: 0x9E9E9E
               # --- Preset dropdown ---
               - label:
                   text: "Preset"
                   x: 0
-                  y: 172
+                  y: 176
               - dropdown:
                   id: dd_preset
-                  width: 256
+                  width: 323
                   x: 0
-                  y: 190
+                  y: 196
                   dir: BOTTOM
                   options:
                     - "Off"
@@ -1130,9 +1379,9 @@ lvgl:
         - obj:
             id: panel_syp
             hidden: true
-            x: 8
+            x: 12
             y: 168
-            width: 784
+            width: 776
             height: 264
             bg_opa: TRANSP
             border_width: 0
@@ -1146,9 +1395,9 @@ lvgl:
         - obj:
             id: panel_pogoda
             hidden: true
-            x: 8
+            x: 12
             y: 168
-            width: 784
+            width: 776
             height: 264
             bg_opa: TRANSP
             border_width: 0
@@ -1283,9 +1532,9 @@ lvgl:
         - obj:
             id: panel_zakupy
             hidden: true
-            x: 8
+            x: 12
             y: 168
-            width: 784
+            width: 776
             height: 264
             bg_opa: TRANSP
             border_width: 0
@@ -1299,9 +1548,9 @@ lvgl:
         - obj:
             id: panel_tramwaje
             hidden: true
-            x: 8
+            x: 12
             y: 168
-            width: 784
+            width: 776
             height: 264
             bg_opa: TRANSP
             border_width: 0
@@ -1414,7 +1663,7 @@ lvgl:
                   hidden: true
                   x: 0
                   y: 68
-                  width: 784
+                  width: 776
                   height: 28
                   bg_opa: TRANSP
                   border_width: 0
@@ -1457,7 +1706,7 @@ lvgl:
                   hidden: true
                   x: 0
                   y: 96
-                  width: 784
+                  width: 776
                   height: 28
                   bg_opa: TRANSP
                   border_width: 0
@@ -1500,7 +1749,7 @@ lvgl:
                   hidden: true
                   x: 0
                   y: 124
-                  width: 784
+                  width: 776
                   height: 28
                   bg_opa: TRANSP
                   border_width: 0
@@ -1543,7 +1792,7 @@ lvgl:
                   hidden: true
                   x: 0
                   y: 152
-                  width: 784
+                  width: 776
                   height: 28
                   bg_opa: TRANSP
                   border_width: 0
@@ -1586,7 +1835,7 @@ lvgl:
                   hidden: true
                   x: 0
                   y: 180
-                  width: 784
+                  width: 776
                   height: 28
                   bg_opa: TRANSP
                   border_width: 0
@@ -1629,7 +1878,7 @@ lvgl:
                   hidden: true
                   x: 0
                   y: 208
-                  width: 784
+                  width: 776
                   height: 28
                   bg_opa: TRANSP
                   border_width: 0
@@ -1669,9 +1918,9 @@ lvgl:
         - obj:
             id: panel_ustawienia
             hidden: true
-            x: 8
+            x: 12
             y: 168
-            width: 784
+            width: 776
             height: 264
             bg_opa: TRANSP
             border_width: 0
@@ -1988,29 +2237,37 @@ interval:
           }
       # --- Light cards sync ---
       - lambda: |-
-          // Sync sliders
+          id(syncing_sliders) = true;
+          // Sync brightness sliders
           auto syncSl = [](lv_obj_t *sl, esphome::sensor::Sensor *sens) {
             float v = sens->state;
             if (!std::isnan(v)) lv_slider_set_value(sl, (int)v, LV_ANIM_OFF);
           };
+          // Sync CT sliders (inverted: warm left, cool right)
+          auto syncSlInv = [](lv_obj_t *sl, esphome::sensor::Sensor *sens) {
+            float v = sens->state;
+            if (!std::isnan(v)) lv_slider_set_value(sl, 607 - (int)v, LV_ANIM_OFF);
+          };
           syncSl(id(sl_bright_salon), id(light_salon_brightness));
-          syncSl(id(sl_ct_salon), id(light_salon_ct));
+          syncSlInv(id(sl_ct_salon), id(light_salon_ct));
           syncSl(id(sl_bright_kuchnia), id(light_kuchnia_brightness));
-          syncSl(id(sl_ct_kuchnia), id(light_kuchnia_ct));
+          syncSlInv(id(sl_ct_kuchnia), id(light_kuchnia_ct));
           syncSl(id(sl_bright_przedpokoj), id(light_przedpokoj_brightness));
-          syncSl(id(sl_ct_przedpokoj), id(light_przedpokoj_ct));
-          // Sync icon colors + status
+          syncSlInv(id(sl_ct_przedpokoj), id(light_przedpokoj_ct));
+          id(syncing_sliders) = false;
+          // Sync icon colors + status (CT in Kelvin + brightness %)
           auto c_on = lv_color_hex(0xE8A030);
           auto c_off = lv_color_hex(0x9E9E9E);
           struct LightInfo {
             lv_obj_t *ico; lv_obj_t *lbl; lv_obj_t *ico_ct;
             esphome::text_sensor::TextSensor *state;
             esphome::sensor::Sensor *bright;
+            esphome::sensor::Sensor *ct;
           };
           LightInfo lights[] = {
-            {id(ico_salon), id(lbl_salon_status), id(ico_ct_salon), id(light_salon_state), id(light_salon_brightness)},
-            {id(ico_kuchnia), id(lbl_kuchnia_status), id(ico_ct_kuchnia), id(light_kuchnia_state), id(light_kuchnia_brightness)},
-            {id(ico_przedpokoj), id(lbl_przedpokoj_status), id(ico_ct_przedpokoj), id(light_przedpokoj_state), id(light_przedpokoj_brightness)},
+            {id(ico_salon), id(lbl_salon_status), id(ico_ct_salon), id(light_salon_state), id(light_salon_brightness), id(light_salon_ct)},
+            {id(ico_kuchnia), id(lbl_kuchnia_status), id(ico_ct_kuchnia), id(light_kuchnia_state), id(light_kuchnia_brightness), id(light_kuchnia_ct)},
+            {id(ico_przedpokoj), id(lbl_przedpokoj_status), id(ico_ct_przedpokoj), id(light_przedpokoj_state), id(light_przedpokoj_brightness), id(light_przedpokoj_ct)},
           };
           for (auto &l : lights) {
             bool on = l.state->state == "on";
@@ -2020,11 +2277,16 @@ interval:
               lv_label_set_text(l.lbl, "Off");
             } else {
               float b = l.bright->state;
-              if (!std::isnan(b)) {
-                char buf[8]; snprintf(buf, sizeof(buf), "%.0f%%", b / 2.55f);
-                lv_label_set_text(l.lbl, buf);
+              float ct = l.ct->state;
+              char buf[20];
+              if (!std::isnan(b) && !std::isnan(ct)) {
+                int kelvin = (int)(1000000.0f / ct + 0.5f);
+                snprintf(buf, sizeof(buf), "%dK %d%%", kelvin, (int)(b / 2.55f));
+              } else if (!std::isnan(b)) {
+                snprintf(buf, sizeof(buf), "%d%%", (int)(b / 2.55f));
               } else {
-                lv_label_set_text(l.lbl, "On");
+                snprintf(buf, sizeof(buf), "On");
               }
+              lv_label_set_text(l.lbl, buf);
             }
           }

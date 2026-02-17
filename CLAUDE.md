@@ -81,6 +81,26 @@ DE: GPIO5, HSYNC: GPIO46, VSYNC: GPIO3, PCLK: GPIO7
 R: GPIO1,2,42,41,40  G: GPIO39,0,45,48,47,21  B: GPIO14,38,18,17,10
 ```
 
+## UI Layout Grid
+
+The dashboard uses a 12-column grid system:
+
+- **Screen:** 800×480px
+- **Padding:** 12px left + 12px right → **776px** usable width
+- **Column width:** ~64.67px (776 / 12)
+- **Panel containers:** `x: 12`, `width: 776`
+
+Common column spans (px):
+| Columns | Width |
+|---------|-------|
+| 3/12    | 194   |
+| 4/12    | 259   |
+| 5/12    | 323   |
+| 6/12    | 388   |
+| 7/12    | 453   |
+
+Light cards use **5/12 = 323px**.
+
 ## Home Assistant Devices
 
 Full device list with entity IDs is in `DEVICES.md`. Use it to reference HA entities in ESPHome configs and LVGL UI.
